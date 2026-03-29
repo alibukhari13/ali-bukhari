@@ -1,26 +1,114 @@
+/* app/globals.css */
+/* app/globals.css */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
+/* CSS Variables for Theming */
 :root {
+  --background: #0a0a0b;
+  --foreground: #ffffff;
+  --accent: #ff8c00;
+  --accent-hover: #e07c00;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --card-bg: #111112;
+  --card-border: rgba(255, 255, 255, 0.05);
+  --input-bg: rgba(255, 255, 255, 0.05);
+  --gray-muted: #6b7280;
+  --gray-light: #9ca3af;
+}
+
+.light {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0a0a0b;
+  --accent: #ff8c00;
+  --accent-hover: #e07c00;
+  --border-color: rgba(0, 0, 0, 0.1);
+  --card-bg: #f8f8f9;
+  --card-border: rgba(0, 0, 0, 0.05);
+  --input-bg: rgba(0, 0, 0, 0.03);
+  --gray-muted: #4b5563;
+  --gray-light: #6b7280;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+::selection {
+  background-color: rgba(255, 140, 0, 0.25);
+  color: #ff8c00;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), sans-serif;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Crazy Heading Font - Orbitron */
+h1, h2, h3, h4, h5, h6,
+.font-display {
+  font-family: 'Orbitron', var(--font-inter), monospace;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Hero Oval Pattern */
+.hero-oval-pattern {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 1025px;
+  height: 764px;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+  background-size: 50px 50px;
+  mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, black 40%, transparent 95%);
+  -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, black 40%, transparent 95%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.light .hero-oval-pattern {
+  background-image:
+    linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+}
+
+/* Utilities */
+.font-cursive {
+  font-family: var(--font-cursive), cursive;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.glass-effect {
+  background: rgba(10, 10, 11, 0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-color);
+}
+
+.light .glass-effect {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+@keyframes pulse-orange {
+  0% { box-shadow: 0 0 0 0 rgba(255, 140, 0, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(255, 140, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 140, 0, 0); }
+}
+
+.status-pulse {
+  animation: pulse-orange 2s infinite;
+}
+
+.btn-glow:hover {
+  box-shadow: 0 0 20px rgba(255, 140, 0, 0.2);
 }
