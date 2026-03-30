@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const cursive = Dancing_Script({ subsets: ["latin"], variable: "--font-cursive" });
 
 export const metadata: Metadata = {
-  title: "Georgy | Data Scientist Portfolio",
+  title: "Ali Bukhari | Web Developer Portfolio",
   description: "Futuristic & Advanced Animated Portfolio",
 };
 
