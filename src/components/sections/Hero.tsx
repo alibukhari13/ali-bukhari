@@ -2,6 +2,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/immutability */
 // components/sections/Hero.tsx
+/* eslint-disable @next/next/no-img-element */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-hooks/immutability */
+// components/sections/Hero.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -38,11 +42,11 @@ const Hero = () => {
   return (
     <section
       id="home"
-      className="relative min-h-screen w-full flex flex-col items-center justify-start overflow-hidden bg-[var(--background)]"
+      className="relative  w-full flex flex-col items-center justify-start overflow-hidden bg-[var(--background)]"
     >
       <div className="hero-oval-pattern" />
 
-      <div className="relative z-10 w-full flex flex-col items-center pt-[160px] md:pt-[100px] text-center px-4 md:px-6">
+      <div className="relative z-10 w-full flex flex-col items-center pt-[160px] md:pt-[150px] pb-0 mb-0 text-center px-4 md:px-6">
         {/* Profile Image */}
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
@@ -106,7 +110,7 @@ const Hero = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.6, ease: "easeOut" }}
-          className="mt-10 md:mt-14"
+          className="mt-6 md:mt-14"
         >
           <Link
             href="#contact"
