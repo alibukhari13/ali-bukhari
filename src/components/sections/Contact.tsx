@@ -1,9 +1,13 @@
-// components/Contact.tsx
+/* eslint-disable react-hooks/immutability */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+// components/sections/Contact.tsx
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Mail, Send } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 const LinkedInIcon = () => (
   <svg
@@ -24,12 +28,46 @@ const LinkedInIcon = () => (
 );
 
 const Contact = () => {
+  const [contactData, setContactData] = useState<any>(null);
+  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [status, setStatus] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchContact();
+  }, []);
+
+  const fetchContact = async () => {
+    const { data } = await supabase.from("contact").select("*").single();
+    if (data) setContactData(data);
+    setLoading(false);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus("sending");
+    const { error } = await supabase.from("messages").insert([formData]);
+    if (error) {
+      setStatus("error");
+      console.error(error);
+    } else {
+      setStatus("success");
+      setFormData({ name: "", email: "", message: "" });
+      setTimeout(() => setStatus(""), 3000);
+    }
+  };
+
+  if (loading) return null;
+
   return (
     <section
       id="contact"
       className="relative w-full pt-16 md:pt-24 lg:pt-32 pb-20 md:pb-28 lg:pb-32 bg-[var(--background)] flex flex-col items-center px-4 md:px-6 overflow-hidden"
     >
-      {/* Header */}
       <div className="text-center mb-12 md:mb-16 lg:mb-20 flex flex-col items-center relative z-10">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
@@ -52,9 +90,7 @@ const Contact = () => {
         </motion.p>
       </div>
 
-      {/* Content Grid */}
       <div className="max-w-[1100px] w-full grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16 relative z-10">
-        {/* Left Column */}
         <motion.div
           initial={{ opacity: 0, x: -30 }}
           whileInView={{ opacity: 1, x: 0 }}
@@ -72,7 +108,6 @@ const Contact = () => {
           </p>
 
           <div className="space-y-5 md:space-y-6">
-            {/* Email Card */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -88,14 +123,13 @@ const Contact = () => {
                   Email Me
                 </p>
                 <p className="text-[var(--foreground)] font-bold text-base md:text-lg break-all">
-                  syedalibukharishah16@gmail.com
+                  {contactData.email}
                 </p>
               </div>
             </motion.div>
 
-            {/* LinkedIn Card */}
             <motion.a
-              href="https://www.linkedin.com/in/syedalieman/"
+              href={contactData.linkedin_url}
               target="_blank"
               rel="noopener noreferrer"
               initial={{ opacity: 0, y: 20 }}
@@ -112,14 +146,13 @@ const Contact = () => {
                   LinkedIn
                 </p>
                 <p className="text-[var(--foreground)] font-bold text-base md:text-lg group-hover:text-[var(--accent)] transition-colors">
-                  Syed Ali Eman
+                  {contactData.linkedin_name}
                 </p>
               </div>
             </motion.a>
           </div>
         </motion.div>
 
-        {/* Right Column – Form */}
         <motion.div
           initial={{ opacity: 0, x: 30 }}
           whileInView={{ opacity: 1, x: 0 }}
@@ -127,7 +160,7 @@ const Contact = () => {
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="p-6 md:p-8 lg:p-10 rounded-2xl bg-[var(--card-bg)] border border-[var(--card-border)] relative overflow-hidden"
         >
-          <form className="space-y-5 md:space-y-6 relative z-10">
+          <form onSubmit={handleSubmit} className="space-y-5 md:space-y-6 relative z-10">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6">
               <div className="space-y-2">
                 <label className="text-[10px] font-bold text-[var(--gray-muted)] uppercase tracking-widest ml-1">
@@ -135,6 +168,10 @@ const Contact = () => {
                 </label>
                 <input
                   type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
                   placeholder="Your Name"
                   className="w-full bg-[var(--input-bg)] border border-[var(--border-color)] rounded-xl px-4 md:px-5 py-3 md:py-4 text-[var(--foreground)] outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)] transition-all text-sm shadow-none"
                 />
@@ -145,6 +182,10 @@ const Contact = () => {
                 </label>
                 <input
                   type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
                   placeholder="Email Address"
                   className="w-full bg-[var(--input-bg)] border border-[var(--border-color)] rounded-xl px-4 md:px-5 py-3 md:py-4 text-[var(--foreground)] outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)] transition-all text-sm shadow-none"
                 />
@@ -157,6 +198,10 @@ const Contact = () => {
               </label>
               <textarea
                 rows={5}
+                name="message"
+                value={formData.message}
+                onChange={handleChange}
+                required
                 placeholder="How can I help you?"
                 className="w-full bg-[var(--input-bg)] border border-[var(--border-color)] rounded-xl px-4 md:px-5 py-3 md:py-4 text-[var(--foreground)] outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)] transition-all resize-none text-sm shadow-none"
               />
@@ -166,15 +211,21 @@ const Contact = () => {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               type="submit"
-              className="w-full py-4 md:py-5 bg-[var(--accent)] text-black font-black uppercase tracking-[3px] text-xs rounded-xl flex items-center justify-center gap-2 md:gap-3 hover:brightness-110 transition-all shadow-lg shadow-[var(--accent)]/20 cursor-pointer"
+              disabled={status === "sending"}
+              className="w-full py-4 md:py-5 bg-[var(--accent)] text-black font-black uppercase tracking-[3px] text-xs rounded-xl flex items-center justify-center gap-2 md:gap-3 hover:brightness-110 transition-all shadow-lg shadow-[var(--accent)]/20 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Send Message <Send size={16} className="md:w-[18px] md:h-[18px]" />
+              {status === "sending" ? "Sending..." : "Send Message"} <Send size={16} className="md:w-[18px] md:h-[18px]" />
             </motion.button>
+            {status === "success" && (
+              <p className="text-green-500 text-xs text-center">Message sent successfully!</p>
+            )}
+            {status === "error" && (
+              <p className="text-red-500 text-xs text-center">Failed to send. Please try again.</p>
+            )}
           </form>
         </motion.div>
       </div>
 
-      {/* Background Blob */}
       <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-[var(--accent)]/5 blur-[120px] rounded-full -z-10" />
     </section>
   );

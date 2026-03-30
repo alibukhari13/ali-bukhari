@@ -1,13 +1,29 @@
+/* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-hooks/immutability */
+// components/sections/Hero.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { X } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 const Hero = () => {
+  const [heroData, setHeroData] = useState<any>(null);
   const [isZoomed, setIsZoomed] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchHero();
+  }, []);
+
+  const fetchHero = async () => {
+    const { data } = await supabase.from("hero").select("*").single();
+    if (data) setHeroData(data);
+    setLoading(false);
+  };
 
   useEffect(() => {
     if (isZoomed) document.body.style.overflow = "hidden";
@@ -16,6 +32,8 @@ const Hero = () => {
       document.body.style.overflow = "auto";
     };
   }, [isZoomed]);
+
+  if (loading) return null;
 
   return (
     <section
@@ -40,8 +58,8 @@ const Hero = () => {
           >
             <div className="w-full h-full rounded-full overflow-hidden bg-[var(--card-bg)] border border-[var(--border-color)]">
               <img
-                src="/profile.jpeg"
-                alt="Profile Syed Ali Eman"
+                src={heroData.image_url}
+                alt="Profile"
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
             </div>
@@ -60,7 +78,7 @@ const Hero = () => {
           transition={{ delay: 0.2, duration: 0.6, ease: "easeOut" }}
           className="text-4xl sm:text-5xl md:text-6xl lg:text-[70px] font-black tracking-tighter text-[var(--foreground)] leading-[1.1] mb-3 uppercase px-4"
         >
-          SYED ALI EMAN
+          {heroData.title}
         </motion.h1>
 
         {/* Subtitle */}
@@ -70,7 +88,7 @@ const Hero = () => {
           transition={{ delay: 0.4, duration: 0.6, ease: "easeOut" }}
           className="text-base sm:text-lg md:text-[20px] font-bold text-[var(--accent)] mb-6 md:mb-10 uppercase tracking-[3px] md:tracking-[4px]"
         >
-          Web Developer 🧙‍♂️
+          {heroData.subtitle}
         </motion.div>
 
         {/* Description */}
@@ -80,10 +98,7 @@ const Hero = () => {
           transition={{ delay: 0.6, duration: 0.6, ease: "easeOut" }}
           className="text-[var(--gray-light)] text-sm sm:text-base md:text-lg lg:text-[19px] leading-relaxed md:leading-[1.6] max-w-[90%] sm:max-w-[85%] md:max-w-[800px] lg:max-w-[850px] font-normal px-4"
         >
-          As a passionate Web Developer, I focus on building responsive and
-          efficient web applications. I enjoy crafting clean code, improving
-          user experience, and bringing creative ideas to life through modern
-          technologies.
+          {heroData.description}
         </motion.p>
 
         {/* Button */}
@@ -118,7 +133,7 @@ const Hero = () => {
               className="relative w-full max-w-[280px] sm:max-w-[400px] md:max-w-[500px] aspect-square rounded-3xl overflow-hidden border border-white/10 shadow-3xl z-10"
             >
               <img
-                src="/profile.jpeg"
+                src={heroData.image_url}
                 alt="Profile Large"
                 className="w-full h-full object-cover"
               />

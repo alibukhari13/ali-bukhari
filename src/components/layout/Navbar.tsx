@@ -58,8 +58,8 @@ const Navbar = () => {
   const navLinks = [
     { name: "Home", href: "/" },
     { name: "About", href: "#about" },
-    { name: "Projects", href: "#projects" },
     { name: "Services", href: "#services" },
+    { name: "Projects", href: "#projects" },
   ];
 
   // Stagger children animation

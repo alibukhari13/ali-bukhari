@@ -1,3 +1,5 @@
+// constants/projects.ts
+
 export const PROJECTS = [
   {
     id: "01",
@@ -54,7 +56,8 @@ export const PROJECTS = [
     title: "Brars – E-Commerce Platform",
     category: "E-Commerce Store",
     description: "Forecasting urban climate trends using satellite data.",
-    fullDetail: "Developed a modern e-commerce platform designed to offer a seamless online shopping experience with a fast and responsive interface.  My Contribution Worked as a Full-Stack Developer, building both frontend and backend modules using Next.js and Node.js. Implemented product listings, cart, and order management with secure API integrations.  Tools & Technologies Next.js, React, Node.js, Supabase, TailwindCSS" ,
+    fullDetail: 
+    "Developed a modern e-commerce platform designed to offer a seamless online shopping experience with a fast and responsive interface.  My Contribution Worked as a Full-Stack Developer, building both frontend and backend modules using Next.js and Node.js. Implemented product listings, cart, and order management with secure API integrations.  Tools & Technologies Next.js, React, Node.js, Supabase, TailwindCSS" ,
     image:
       "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200",
     tags: ["Next.js", "React", "Supabase", "Full-Stack Development", "Ecommerce"],
@@ -66,7 +69,8 @@ export const PROJECTS = [
     category: "Web Software",
     description:
       "JobPulse is an advanced AI-powered automation platform designed for Upwork freelancers. ",
-    fullDetail: "JobPulse includes advanced features such as real-time deep scraping to automatically fetch the latest job listings from Upwork and display them on a premium dashboard, along with an AI-powered proposal engine that analyzes job descriptions and user portfolios to generate professional, tailored proposals within seconds. It also offers a portfolio memory bank for managing past projects and links, AI training and history to adapt to the user’s writing style over time, a custom logic builder with a drag-and-drop interface for defining proposal structures, and smart lifecycle management with job expiry timers to keep opportunities fresh and relevant. The platform is built using Next.js 14/15 (App Router) and React.js, styled with Tailwind CSS (premium dark UI), and powered by Supabase (PostgreSQL) for database and authentication, along with OpenAI API and custom AI logic for intelligent automation.",
+    fullDetail: 
+    "JobPulse includes advanced features such as real-time deep scraping to automatically fetch the latest job listings from Upwork and display them on a premium dashboard, along with an AI-powered proposal engine that analyzes job descriptions and user portfolios to generate professional, tailored proposals within seconds. It also offers a portfolio memory bank for managing past projects and links, AI training and history to adapt to the user’s writing style over time, a custom logic builder with a drag-and-drop interface for defining proposal structures, and smart lifecycle management with job expiry timers to keep opportunities fresh and relevant. The platform is built using Next.js 14/15 (App Router) and React.js, styled with Tailwind CSS (premium dark UI), and powered by Supabase (PostgreSQL) for database and authentication, along with OpenAI API and custom AI logic for intelligent automation.",
     image:
       "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=1200",
     tags: [
@@ -84,7 +88,8 @@ export const PROJECTS = [
     category: "Website",
     description:
       "Zuhd is a modern Islamic educational platform focused on delivering authentic and accessible Islamic",
-    fullDetail: "Zuhd is a modern Islamic educational platform focused on delivering authentic and accessible Islamic knowledge through digital content, courses, and community initiatives. The platform provides lectures, blogs, short reminders, and structured learning programs based on the Qur’an and Sunnah, aiming to inspire spiritual growth and strengthen the connection between Muslims and their faith. It also includes features such as Islamic courses (Quran, Hadith, Fiqh, and history), after-school educational programs (Maktab), and engaging multimedia content like videos and daily reminders, making it suitable for users of all ages. Built as a content-driven and community-focused platform, Zuhd combines traditional Islamic teachings with modern technology to create an interactive and meaningful learning experience for a global audience",
+    fullDetail:
+     "Zuhd is a modern Islamic educational platform focused on delivering authentic and accessible Islamic knowledge through digital content, courses, and community initiatives. The platform provides lectures, blogs, short reminders, and structured learning programs based on the Qur’an and Sunnah, aiming to inspire spiritual growth and strengthen the connection between Muslims and their faith. It also includes features such as Islamic courses (Quran, Hadith, Fiqh, and history), after-school educational programs (Maktab), and engaging multimedia content like videos and daily reminders, making it suitable for users of all ages. Built as a content-driven and community-focused platform, Zuhd combines traditional Islamic teachings with modern technology to create an interactive and meaningful learning experience for a global audience",
     image:
       "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1200",
     tags: [
