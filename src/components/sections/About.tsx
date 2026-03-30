@@ -1,6 +1,8 @@
 /* eslint-disable react-hooks/immutability */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // components/sections/About.tsx
+// components/sections/About.tsx
+
 "use client";
 
 import React, { useState, useEffect } from "react";
