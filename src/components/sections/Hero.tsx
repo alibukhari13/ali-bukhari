@@ -42,7 +42,7 @@ const Hero = () => {
     >
       <div className="hero-oval-pattern" />
 
-      <div className="relative z-10 w-full flex flex-col items-center pt-[120px] md:pt-[139px] text-center px-4 md:px-6">
+      <div className="relative z-10 w-full flex flex-col items-center pt-[160px] md:pt-[100px] text-center px-4 md:px-6">
         {/* Profile Image */}
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
