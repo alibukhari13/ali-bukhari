@@ -141,6 +141,14 @@ const Footer = () => {
               >
                 LinkedIn
               </a>
+              <a
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-[var(--foreground)] transition-colors hover:translate-x-1 inline-block"
+              >
+                +923296590026
+              </a>
             </div>
           </div>
 
