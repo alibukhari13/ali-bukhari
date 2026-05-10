@@ -36,7 +36,7 @@ export default function AdminPanel() {
     description: "",
     full_detail: "",
     image_url: "",
-    tagsString: "", // will hold comma-separated tags like "React, Next.js"
+    tagsString: "", 
     link: "",
     order_index: 0,
   });
