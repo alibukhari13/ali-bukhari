@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/set-state-in-effect */
-// components/Navbar.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -19,6 +18,7 @@ const Navbar = () => {
     setMounted(true);
   }, []);
 
+  // Intersection Observer Logic (Aapki original logic)
   useEffect(() => {
     const sections = document.querySelectorAll("section[id]");
     const observer = new IntersectionObserver(
@@ -37,9 +37,7 @@ const Navbar = () => {
     sections.forEach((section) => observer.observe(section));
 
     const handleScrollTop = () => {
-      if (window.scrollY < 100) {
-        setActiveSection("Home");
-      }
+      if (window.scrollY < 100) setActiveSection("Home");
     };
     window.addEventListener("scroll", handleScrollTop);
 
@@ -53,8 +51,6 @@ const Navbar = () => {
     setTheme(theme === "dark" ? "light" : "dark");
   };
 
-  const closeMobileMenu = () => setIsMobileMenuOpen(false);
-
   const navLinks = [
     { name: "Home", href: "/" },
     { name: "About", href: "#about" },
@@ -62,173 +58,123 @@ const Navbar = () => {
     { name: "Projects", href: "#projects" },
   ];
 
-  // Stagger children animation
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.4 } }
-  };
-
   return (
-    <>
-      {/* Header - fixed at top on all screens */}
-      <header className="fixed top-0 left-0 w-full z-50 h-24 flex items-center bg-[var(--background)]/60 backdrop-blur-xl px-6 md:px-[120px] border-b border-[var(--border-color)]">
-        {/* Mobile: Hamburger (left) */}
-        <button
-          onClick={() => setIsMobileMenuOpen(true)}
-          className="md:hidden absolute left-6 text-[var(--gray-light)] hover:text-[var(--foreground)] cursor-pointer transition-colors"
-        >
-          <Menu size={24} strokeWidth={1.5} />
-        </button>
-
-        {/* Logo - centered on mobile, normal on desktop */}
-        <Link
-          href="/"
-          className="text-2xl md:text-3xl font-cursive text-[var(--foreground)] absolute left-1/2 -translate-x-1/2 md:static md:left-auto md:translate-x-0"
+    <header className="fixed top-0 left-0 right-0 z-[100] px-4 sm:px-6 lg:px-8 pt-4 transition-all duration-300 font-sans">
+      <nav
+        role="navigation"
+        className="max-w-[1200px] mx-auto flex items-center justify-between px-6 py-2.5 rounded-xl transition-all duration-300 bg-[var(--background)]/60 backdrop-blur-xl shadow-lg border border-[var(--border-color)] relative"
+      >
+        {/* LOGO AREA */}
+        <Link 
+          href="/" 
+          className="text-xl md:text-2xl font-cursive text-[var(--foreground)] shrink-0 relative z-[210]"
         >
           ALI BUKHARI
         </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-14 absolute left-1/2 -translate-x-1/2">
-          {navLinks.map((link) => (
-            <Link
-              key={link.name}
-              href={link.href}
-              className={cn(
-                "text-[15px] font-medium transition-colors",
-                activeSection === link.name
-                  ? "text-[var(--accent)]"
-                  : "text-[var(--gray-light)] hover:text-[var(--foreground)]"
-              )}
-            >
-              {link.name}
-            </Link>
-          ))}
-        </nav>
+        {/* Vertical Divider (Desktop Only) */}
 
-        {/* Right section: Contact (desktop) + Theme Toggle */}
-        <div className="flex items-center gap-6 md:gap-10 ml-auto">
+        {/* Desktop Navigation Links */}
+        <ul className="hidden md:flex items-center gap-1.5 text-sm font-medium absolute left-1/2 -translate-x-1/2">
+          {navLinks.map((link) => (
+            <li key={link.name}>
+              <Link
+                href={link.href}
+                className={cn(
+                  "px-3.5 py-1.5 text-[14px] transition-all duration-200 font-normal rounded-lg hover:bg-[var(--foreground)]/5",
+                  activeSection === link.name
+                    ? "text-[var(--accent)]"
+                    : "text-[var(--gray-light)] hover:text-[var(--foreground)]"
+                )}
+              >
+                {link.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
+
+        {/* Right Side Actions */}
+        <div className="flex items-center gap-4 relative z-[210]">
+          {/* Contact Button (Inspired Style) */}
           <Link
             href="#contact"
-            className="hidden md:inline-block px-6 py-2 border border-[var(--border-color)] text-[var(--foreground)] rounded-lg text-sm font-medium hover:border-[var(--accent)] transition-all"
+            className="hidden md:inline-flex items-center px-5 py-2 text-[13px] font-bold text-[var(--foreground)] border border-[var(--border-color)] rounded-xl hover:border-[var(--accent)] transition-all duration-300"
           >
             Contact Me
           </Link>
 
+          {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="text-[var(--gray-light)] hover:text-[var(--foreground)] cursor-pointer transition-colors"
+            className="p-2 text-[var(--gray-light)] hover:text-[var(--foreground)] cursor-pointer transition-colors bg-[var(--foreground)]/5 rounded-lg"
           >
             {mounted && theme === "light" ? (
-              <Moon size={20} strokeWidth={1.5} />
+              <Moon size={18} strokeWidth={1.5} />
             ) : (
-              <Sun size={20} strokeWidth={1.5} />
+              <Sun size={18} strokeWidth={1.5} />
             )}
           </button>
+
+          {/* Hamburger Icon (Mobile) */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden text-[var(--gray-light)] p-2 hover:bg-[var(--foreground)]/10 rounded-xl transition-all"
+          >
+            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
         </div>
-      </header>
 
-      {/* Mobile Sidebar (Left) */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              onClick={closeMobileMenu}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 md:hidden"
-            />
-
-            {/* Drawer - slides from left */}
-            <motion.div
-              initial={{ x: "-100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed left-0 top-0 h-full w-[280px] bg-[var(--background)] border-r border-[var(--border-color)] z-50 md:hidden shadow-xl flex flex-col"
-            >
-              <div className="flex justify-end p-6">
-                <button
-                  onClick={closeMobileMenu}
-                  className="text-[var(--gray-light)] hover:text-[var(--foreground)] cursor-pointer transition-colors"
-                >
-                  <X size={24} strokeWidth={1.5} />
-                </button>
-              </div>
-
+        {/* Mobile Menu logic (TECHZOQ style) */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <>
+              {/* Backdrop */}
               <motion.div
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                className="flex flex-col items-center gap-8 px-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[150] lg:hidden mt-[-1rem] ml-[-1rem] w-[200vw] h-[200vh]"
+              />
+              
+              {/* Sidebar card coming from top/center */}
+              <motion.div
+                initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                className="absolute top-20 left-0 right-0 z-[200] md:hidden px-2"
               >
-                {navLinks.map((link) => (
-                  <motion.div key={link.name} variants={itemVariants} className="w-full">
+                <div className="bg-[var(--background)] border border-[var(--border-color)] rounded-[2rem] p-8 shadow-2xl flex flex-col gap-6">
+                  {navLinks.map((link) => (
                     <Link
+                      key={link.name}
                       href={link.href}
-                      onClick={closeMobileMenu}
+                      onClick={() => setIsMobileMenuOpen(false)}
                       className={cn(
-                        "text-lg font-medium transition-colors w-full text-center block py-2",
+                        "text-lg font-medium transition-colors px-2",
                         activeSection === link.name
                           ? "text-[var(--accent)]"
-                          : "text-[var(--gray-light)] hover:text-[var(--foreground)]"
+                          : "text-[var(--gray-light)]"
                       )}
                     >
                       {link.name}
                     </Link>
-                  </motion.div>
-                ))}
-
-                <motion.div variants={itemVariants} className="w-full">
+                  ))}
+                  <div className="h-px bg-[var(--border-color)] my-2" />
                   <Link
                     href="#contact"
-                    onClick={closeMobileMenu}
-                    className="w-full block text-center px-6 py-3 border border-[var(--border-color)] text-[var(--foreground)] rounded-lg text-sm font-medium hover:border-[var(--accent)] transition-all mt-4"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center justify-center py-4 rounded-2xl border border-[var(--border-color)] text-[var(--foreground)] font-bold bg-[var(--foreground)]/5"
                   >
                     Contact Me
                   </Link>
-                </motion.div>
-
-                <motion.button
-                  variants={itemVariants}
-                  onClick={() => {
-                    toggleTheme();
-                    closeMobileMenu();
-                  }}
-                  className="flex items-center gap-3 text-[var(--gray-light)] hover:text-[var(--foreground)] cursor-pointer transition-colors mt-6"
-                >
-                  {mounted && theme === "light" ? (
-                    <>
-                      <Moon size={20} strokeWidth={1.5} />
-                      <span>Dark Mode</span>
-                    </>
-                  ) : (
-                    <>
-                      <Sun size={20} strokeWidth={1.5} />
-                      <span>Light Mode</span>
-                    </>
-                  )}
-                </motion.button>
+                </div>
               </motion.div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-    </>
+            </>
+          )}
+        </AnimatePresence>
+      </nav>
+    </header>
   );
 };
 

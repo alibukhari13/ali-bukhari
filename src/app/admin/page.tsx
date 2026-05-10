@@ -1,3 +1,4 @@
+//app/admin/page.tsx
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/immutability */
 "use client";
@@ -40,7 +41,7 @@ export default function AdminPanel() {
     order_index: 0,
   });
 
-  const ADMIN_PASSWORD = "Ali123@@";
+  const ADMIN_PASSWORD = "Ali123@";
 
   // Login
   const handleLogin = () => {

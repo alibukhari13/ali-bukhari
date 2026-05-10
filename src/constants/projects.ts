@@ -70,8 +70,7 @@ export const PROJECTS = [
     description:
       "JobPulse is an advanced AI-powered automation platform designed for Upwork freelancers. ",
     fullDetail: 
-    "JobPulse includes advanced features such as real-time deep scraping to automatically fetch the latest job listings from Upwork and display them on a premium dashboard, along with an AI-powered proposal engine that analyzes job descriptions and user portfolios to generate professional, tailored proposals within seconds. It also offers a portfolio memory bank for managing past projects and links, AI training and history to adapt to the user’s writing style over time, a custom logic builder with a drag-and-drop interface for defining proposal structures, and smart lifecycle management with job expiry timers to keep opportunities fresh and relevant. The platform is built using Next.js 14/15 (App Router) and React.js, styled with Tailwind CSS (premium dark UI), and powered by Supabase (PostgreSQL) for database and authentication, along with OpenAI API and custom AI logic for intelligent automation.",
-    image:
+JobPulse is an advanced AI-powered automation platform designed for Upwork freelancers.    image:
       "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=1200",
     tags: [
       "Next.js",
