@@ -17,7 +17,7 @@ const NAV_LINKS = [
 
 const Navbar = () => {
   const [activeSection, setActiveSection] = useState("home");
-  const [theme, setTheme] = useState<"dark" | "light">("light");
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [mounted, setMounted] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);

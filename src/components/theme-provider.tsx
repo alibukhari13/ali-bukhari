@@ -3,7 +3,7 @@
 
 import * as React from "react";
 
-/** Light default via html.light — skip next-themes to avoid React 19 script-tag runtime errors. */
+/** Dark default via html.dark — skip next-themes to avoid React 19 script-tag runtime errors. */
 export function ThemeProvider({
   children,
 }: {
