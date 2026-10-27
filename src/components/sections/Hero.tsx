@@ -23,17 +23,62 @@ const OFFERINGS = [
   { title: "API work", detail: "Node, Express & MongoDB" },
 ];
 
-const FEATURED = PROJECTS[0];
+const FALLBACK_FEATURED = {
+  title: PROJECTS[0].title,
+  category: PROJECTS[0].category,
+  description: PROJECTS[0].description,
+  image_url: PROJECTS[0].image,
+  tags: PROJECTS[0].tags,
+  link: PROJECTS[0].link,
+};
+
+const normalizeTags = (tags: unknown): string[] => {
+  if (Array.isArray(tags)) return tags.map(String);
+  if (typeof tags === "string") {
+    try {
+      const parsed = JSON.parse(tags);
+      return Array.isArray(parsed) ? parsed.map(String) : [];
+    } catch {
+      return tags
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean);
+    }
+  }
+  return [];
+};
 
 const Hero = () => {
   const [heroData, setHeroData] = useState<any>(FALLBACK_HERO);
+  const [featured, setFeatured] = useState(FALLBACK_FEATURED);
 
   useEffect(() => {
-    const fetchHero = async () => {
-      const { data } = await supabase.from("hero").select("*").single();
-      if (data) setHeroData(data);
+    const fetchHeroAndFeatured = async () => {
+      const [heroRes, projectRes] = await Promise.all([
+        supabase.from("hero").select("*").single(),
+        supabase
+          .from("projects")
+          .select("*")
+          .order("order_index", { ascending: true })
+          .limit(1),
+      ]);
+
+      if (heroRes.data) setHeroData(heroRes.data);
+
+      const first = projectRes.data?.[0];
+      if (first) {
+        const tags = normalizeTags(first.tags);
+        setFeatured({
+          title: first.title || FALLBACK_FEATURED.title,
+          category: first.category || FALLBACK_FEATURED.category,
+          description: first.description || FALLBACK_FEATURED.description,
+          image_url: first.image_url || FALLBACK_FEATURED.image_url,
+          tags: tags.length ? tags : FALLBACK_FEATURED.tags,
+          link: first.link || FALLBACK_FEATURED.link,
+        });
+      }
     };
-    fetchHero();
+    fetchHeroAndFeatured();
   }, []);
 
   const title = heroData.title || FALLBACK_HERO.title;
@@ -191,11 +236,11 @@ const Hero = () => {
           className="space-y-3 lg:col-span-5"
         >
           <div className="panel overflow-hidden backdrop-blur-md">
-            <div className="relative h-36 overflow-hidden sm:h-40 lg:h-44">
+            <div className="relative aspect-[16/10] w-full overflow-hidden bg-[var(--input-bg)]">
               <img
-                src={FEATURED.image}
-                alt={FEATURED.title}
-                className="h-full w-full object-cover"
+                src={featured.image_url}
+                alt={featured.title}
+                className="absolute inset-0 h-full w-full object-cover object-top"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[var(--background)] via-black/35 to-black/10" />
               <div className="absolute left-3 top-3 inline-flex items-center gap-1.5 border border-white/20 bg-black/55 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-white backdrop-blur-sm">
@@ -204,20 +249,20 @@ const Hero = () => {
               </div>
               <div className="absolute bottom-3 left-3 right-3">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--accent)]">
-                  {FEATURED.category}
+                  {featured.category}
                 </p>
                 <p className="mt-1 font-display text-sm uppercase leading-snug text-white sm:text-base">
-                  {FEATURED.title}
+                  {featured.title}
                 </p>
               </div>
             </div>
 
             <div className="space-y-3 p-4">
               <p className="line-clamp-2 text-sm text-[var(--gray-light)]">
-                {FEATURED.description}
+                {featured.description}
               </p>
               <div className="flex flex-wrap gap-1.5">
-                {FEATURED.tags.slice(0, 3).map((tag) => (
+                {featured.tags.slice(0, 3).map((tag) => (
                   <span
                     key={tag}
                     className="border border-[var(--border-color)] px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-[var(--gray-muted)]"

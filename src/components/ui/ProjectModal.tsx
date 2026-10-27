@@ -151,7 +151,7 @@ export default function ProjectModal({
 
             <div className="overflow-y-auto no-scrollbar">
               {/* Full-width cover image */}
-              <div className="relative h-52 w-full overflow-hidden sm:h-64 md:h-72">
+              <div className="relative aspect-[16/9] w-full overflow-hidden bg-[var(--input-bg)] sm:aspect-[2/1]">
                 <motion.img
                   key={(project.id ?? project.title) + "-img"}
                   src={project.image_url}
@@ -159,7 +159,7 @@ export default function ProjectModal({
                   initial={{ scale: 1.08, opacity: 0.65 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ duration: 0.55, ease: easeOut }}
-                  className="h-full w-full object-cover"
+                  className="absolute inset-0 h-full w-full object-cover object-top"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[var(--background)] via-black/25 to-transparent" />
                 <span className="absolute left-4 top-4 border border-white/20 bg-black/55 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-white backdrop-blur-sm sm:left-5 sm:top-5">

@@ -9,8 +9,7 @@ export const PROJECTS = [
       "A platform connecting users with service professionals for home maintenance, booking, and payments.",
     fullDetail:
       "RUTE connects users with service professionals for home maintenance. It supports easy booking, real-time updates, secure payments, and admin controls. Contribution: full-stack development, UI/UX, API integration, and deployment with Next.js, TypeScript, Tailwind CSS, Supabase, and React.",
-    image:
-      "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1200",
+    image: "https://i.ibb.co/pjMFd3GW/Responsive-bsite-Mockup.png",
     tags: [
       "Next.js",
       "Supabase",
@@ -28,8 +27,7 @@ export const PROJECTS = [
       "A responsive IT services platform with dynamic CMS content and performance-focused delivery.",
     fullDetail:
       "Built a full-stack Next.js application for Burako Solutions — a responsive IT services platform with Contentful CMS and API-driven content. Contribution: frontend and backend development, CMS integration, and responsive UI with Next.js, Tailwind CSS, and Contentful.",
-    image:
-      "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=1200",
+    image: "https://i.ibb.co/qFn58pHm/Responsive-ebsite-Mockup.png",
     tags: [
       "Next.js",
       "Tailwind CSS",
@@ -47,8 +45,7 @@ export const PROJECTS = [
       "Frontend work on a scheduling and operations platform for service-based companies.",
     fullDetail:
       "Contributed as a Frontend Developer on PlenumPro, a platform for appointment scheduling and business operations. Features include calendar tools, analytics, customer management, Google Maps location views, and role-based access. Stack: React.js, Next.js, Auth0, and Google Maps in a scalable monorepo.",
-    image:
-      "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200",
+    image: "https://i.ibb.co/Hpb2dLNG/Responsive-Mockup.png",
     tags: ["React.js", "Next.js", "Auth0", "Google Maps", "Frontend"],
     link: "http://plenum.pro/",
   },
@@ -60,8 +57,7 @@ export const PROJECTS = [
       "A modern e-commerce experience with product listings, cart, and order management.",
     fullDetail:
       "Developed a modern e-commerce platform focused on a fast, responsive shopping experience. Contribution: full-stack modules with Next.js and Node.js, including product listings, cart, order management, and secure API integrations. Stack: Next.js, React, Node.js, Supabase, Tailwind CSS.",
-    image:
-      "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=1200",
+    image: "https://i.ibb.co/vC3NCPRB/Responsive-Website-ckup.png",
     tags: ["Next.js", "React", "Supabase", "Full-Stack Development", "Ecommerce"],
     link: "https://www.brars.com/",
   },

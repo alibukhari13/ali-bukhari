@@ -92,11 +92,11 @@ const Projects = () => {
               whileHover={{ y: -4 }}
               className="panel group cursor-pointer overflow-hidden text-left"
             >
-              <div className="relative h-[180px] overflow-hidden md:h-[190px]">
+              <div className="relative aspect-[16/10] w-full overflow-hidden bg-[var(--input-bg)]">
                 <img
                   src={project.image_url}
                   alt={project.title}
-                  className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]"
+                  className="absolute inset-0 h-full w-full object-cover object-top transition duration-700 group-hover:scale-[1.04]"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[var(--background)] via-black/15 to-transparent" />
                 <span className="absolute left-3 top-3 border border-white/20 bg-black/50 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-white backdrop-blur-sm">
