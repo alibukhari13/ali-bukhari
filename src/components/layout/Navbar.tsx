@@ -17,15 +17,24 @@ const NAV_LINKS = [
 
 const Navbar = () => {
   const [activeSection, setActiveSection] = useState("home");
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [theme, setTheme] = useState<"dark" | "light">("light");
   const [mounted, setMounted] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    const isLight = document.documentElement.classList.contains("light");
-    setTheme(isLight ? "light" : "dark");
+    const root = document.documentElement;
+    const saved = window.localStorage.getItem("theme");
+    const next =
+      saved === "dark" || saved === "light"
+        ? saved
+        : root.classList.contains("light")
+          ? "light"
+          : "dark";
+    setTheme(next);
+    root.classList.toggle("dark", next === "dark");
+    root.classList.toggle("light", next === "light");
   }, []);
 
   useEffect(() => {
@@ -65,6 +74,7 @@ const Navbar = () => {
     setTheme(next);
     document.documentElement.classList.toggle("dark", next === "dark");
     document.documentElement.classList.toggle("light", next === "light");
+    window.localStorage.setItem("theme", next);
   };
 
   return (
