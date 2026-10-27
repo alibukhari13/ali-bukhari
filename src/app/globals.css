@@ -59,9 +59,6 @@ h6,
   letter-spacing: -0.03em;
 }
 
-.font-cursive {
-  font-family: var(--font-cursive), cursive;
-}
 
 .no-scrollbar::-webkit-scrollbar {
   display: none;

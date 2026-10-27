@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Syne, Outfit, Dancing_Script } from "next/font/google";
+import { Syne, Outfit } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import LayoutWrapper from "@/components/LayoutWrapper";
@@ -16,11 +16,6 @@ const body = Outfit({
   weight: ["300", "400", "500", "600", "700"],
 });
 
-const cursive = Dancing_Script({
-  subsets: ["latin"],
-  variable: "--font-cursive",
-});
-
 export const metadata: Metadata = {
   title: "Syed Ali Eman | Web Developer",
   description:
@@ -35,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="light" suppressHydrationWarning>
       <body
-        className={`${display.variable} ${body.variable} ${cursive.variable} antialiased`}
+        className={`${display.variable} ${body.variable} antialiased`}
         suppressHydrationWarning
       >
         <div className="page-atmosphere" aria-hidden />

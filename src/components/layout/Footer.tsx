@@ -93,7 +93,7 @@ const Footer = () => {
             >
               <Link
                 href="#home"
-                className="font-cursive text-3xl text-[var(--foreground)] transition hover:text-[var(--accent)] md:text-4xl"
+                className="font-display text-2xl uppercase tracking-tight text-[var(--foreground)] transition hover:text-[var(--accent)] md:text-3xl"
               >
                 {footerData.logo_text}
               </Link>

@@ -102,13 +102,14 @@ const Navbar = () => {
           <Link
             href="#home"
             onClick={() => setIsMobileMenuOpen(false)}
-            className="relative z-[60] flex shrink-0 items-center gap-2.5"
+            className="relative z-[60] flex shrink-0 items-center"
           >
-            <span className="flex h-8 w-8 items-center justify-center bg-[var(--accent)] font-display text-xs font-bold text-black">
-              AE
-            </span>
-            <span className="font-cursive text-[1.55rem] leading-none text-[var(--foreground)] transition hover:text-[var(--accent)] sm:text-[1.7rem]">
+            <span className="inline-flex items-end font-display text-[1.05rem] uppercase leading-none tracking-tight text-[var(--foreground)] transition hover:text-[var(--accent)] sm:text-lg">
               Ali Eman
+              <span
+                aria-hidden
+                className="mb-[0.12em] ml-[0.1em] inline-block h-[0.28em] w-[0.28em] shrink-0 rounded-full bg-[var(--accent)]"
+              />
             </span>
           </Link>
 
