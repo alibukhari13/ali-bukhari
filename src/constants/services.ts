@@ -1,35 +1,49 @@
-// constants/services.ts
-import { Globe, Layout, Server, Layers, GitMerge, Gauge } from "lucide-react";
+import { Globe, Layout, ShoppingBag, Layers, GitMerge, Gauge } from "lucide-react";
 
 export const SERVICES = [
   {
     title: "Web Development",
-    description: "Building modern, responsive, and high-performance websites tailored to business needs using the latest web technologies.",
+    description:
+      "Building responsive web applications and websites with React.js, Next.js, and modern CSS for clean, reliable performance.",
     icon: Globe,
   },
   {
     title: "Front-End Development",
-    description: "Creating interactive and visually appealing user interfaces with a focus on user experience (UI/UX) and responsiveness.",
+    description:
+      "Creating reusable UI components and responsive interfaces with React.js, Next.js, Tailwind CSS, and Bootstrap.",
     icon: Layout,
   },
   {
-    title: "Back-End Development",
-    description: "Developing secure, scalable, and efficient server-side applications, APIs, and database integrations.",
-    icon: Server,
+    title: "Shopify Store Development",
+    description:
+      "Building and maintaining Shopify stores with responsive storefronts, app integrations, and smooth shopping experiences.",
+    icon: ShoppingBag,
   },
   {
-    title: "Full Stack Solutions",
-    description: "Providing end-to-end development solutions, from designing interfaces to managing server logic and databases.",
+    title: "Shopify Theme Customization",
+    description:
+      "Customizing Shopify themes to match client requirements, improve mobile responsiveness, and support payment gateways.",
     icon: Layers,
   },
   {
-    title: "API Integration & Development",
-    description: "Integrating third-party services and building custom APIs to enhance functionality and connectivity.",
+    title: "API Integration",
+    description:
+      "Integrating REST APIs and third-party services with Node.js, Express.js, and MongoDB for connected product experiences.",
     icon: GitMerge,
   },
   {
     title: "Performance Optimization",
-    description: "Optimizing websites for speed, scalability, and SEO to ensure smooth performance and better user engagement.",
+    description:
+      "Improving load speed, mobile responsiveness, and overall reliability so sites and stores stay fast and easy to use.",
     icon: Gauge,
   },
 ];
+
+export const SERVICE_ICON_NAMES = [
+  "Globe",
+  "Layout",
+  "ShoppingBag",
+  "Layers",
+  "GitMerge",
+  "Gauge",
+] as const;

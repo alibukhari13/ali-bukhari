@@ -1,20 +1,54 @@
-//app/admin/page.tsx
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable react-hooks/immutability */
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import {
+  ArrowLeft,
+  LayoutDashboard,
+  LogOut,
+  Plus,
+  Save,
+  Trash2,
+  Pencil,
+  Mail,
+  Loader2,
+  Lock,
+} from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
-export default function AdminPanel() {
-  // Auth
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [password, setPassword] = useState("");
-  const [activeTab, setActiveTab] = useState("hero");
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+const TABS = [
+  { id: "hero", label: "Hero" },
+  { id: "about", label: "About" },
+  { id: "services", label: "Services" },
+  { id: "projects", label: "Projects" },
+  { id: "contact", label: "Contact" },
+  { id: "footer", label: "Footer" },
+  { id: "messages", label: "Messages" },
+] as const;
 
-  // Data
+const inputClass =
+  "w-full border border-[var(--border-color)] bg-[var(--input-bg)] px-3.5 py-3 text-sm text-[var(--foreground)] outline-none transition placeholder:text-[var(--gray-muted)] focus:border-[var(--accent)]";
+const labelClass =
+  "mb-1.5 block text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--gray-muted)]";
+const panelClass =
+  "border border-[var(--border-color)] bg-[var(--card-bg)] p-5 md:p-6";
+const btnPrimary =
+  "inline-flex items-center justify-center gap-2 bg-[var(--accent)] px-5 py-2.5 text-xs font-bold uppercase tracking-[0.14em] text-black transition hover:brightness-110 disabled:opacity-50";
+const btnGhost =
+  "inline-flex items-center justify-center gap-2 border border-[var(--border-color)] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--foreground)] transition hover:border-[var(--accent)]";
+
+export default function AdminPanel() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [loggingIn, setLoggingIn] = useState(false);
+  const [activeTab, setActiveTab] = useState<(typeof TABS)[number]["id"]>("hero");
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [toast, setToast] = useState("");
+
   const [hero, setHero] = useState<any>({});
   const [about, setAbout] = useState<any>({});
   const [services, setServices] = useState<any[]>([]);
@@ -23,10 +57,14 @@ export default function AdminPanel() {
   const [footer, setFooter] = useState<any>({});
   const [messages, setMessages] = useState<any[]>([]);
 
-  // Modals
   const [showServiceModal, setShowServiceModal] = useState(false);
   const [editingService, setEditingService] = useState<any>(null);
-  const [serviceForm, setServiceForm] = useState({ title: "", description: "", icon_name: "Globe", order_index: 0 });
+  const [serviceForm, setServiceForm] = useState({
+    title: "",
+    description: "",
+    icon_name: "Globe",
+    order_index: 0,
+  });
 
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [editingProject, setEditingProject] = useState<any>(null);
@@ -36,91 +74,123 @@ export default function AdminPanel() {
     description: "",
     full_detail: "",
     image_url: "",
-    tagsString: "", 
+    tagsString: "",
     link: "",
     order_index: 0,
   });
 
-  const ADMIN_PASSWORD = "Ali123@";
-
-  // Login
-  const handleLogin = () => {
-    if (password === ADMIN_PASSWORD) {
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (sessionStorage.getItem("admin_auth") === "1") {
       setIsAuthenticated(true);
       fetchAllData();
-    } else {
-      alert("Wrong password!");
+    }
+  }, []);
+
+  const notify = (msg: string) => {
+    setToast(msg);
+    window.setTimeout(() => setToast(""), 2400);
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError("");
+    setLoggingIn(true);
+    try {
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        setLoginError(data.error || "Login failed");
+        return;
+      }
+      sessionStorage.setItem("admin_auth", "1");
+      setIsAuthenticated(true);
+      fetchAllData();
+    } catch {
+      setLoginError("Could not reach login API.");
+    } finally {
+      setLoggingIn(false);
     }
   };
 
-  // Fetch all data
+  const handleLogout = () => {
+    sessionStorage.removeItem("admin_auth");
+    setIsAuthenticated(false);
+    setEmail("");
+    setPassword("");
+  };
+
   const fetchAllData = async () => {
     setLoading(true);
     try {
-      const { data: heroData } = await supabase.from("hero").select("*").single();
-      if (heroData) setHero(heroData);
-      const { data: aboutData } = await supabase.from("about").select("*").single();
-      if (aboutData) setAbout(aboutData);
-      const { data: servicesData } = await supabase.from("services").select("*").order("order_index");
-      if (servicesData) setServices(servicesData);
-      const { data: projectsData } = await supabase.from("projects").select("*").order("order_index");
-      if (projectsData) setProjects(projectsData);
-      const { data: contactData } = await supabase.from("contact").select("*").single();
-      if (contactData) setContact(contactData);
-      const { data: footerData } = await supabase.from("footer").select("*").single();
-      if (footerData) setFooter(footerData);
-      const { data: msgData } = await supabase.from("messages").select("*").order("created_at", { ascending: false });
-      if (msgData) setMessages(msgData);
+      const [
+        heroRes,
+        aboutRes,
+        servicesRes,
+        projectsRes,
+        contactRes,
+        footerRes,
+        msgRes,
+      ] = await Promise.all([
+        supabase.from("hero").select("*").single(),
+        supabase.from("about").select("*").single(),
+        supabase.from("services").select("*").order("order_index"),
+        supabase.from("projects").select("*").order("order_index"),
+        supabase.from("contact").select("*").single(),
+        supabase.from("footer").select("*").single(),
+        supabase.from("messages").select("*").order("created_at", { ascending: false }),
+      ]);
+
+      if (heroRes.data) setHero(heroRes.data);
+      if (aboutRes.data) setAbout(aboutRes.data);
+      if (servicesRes.data) setServices(servicesRes.data);
+      if (projectsRes.data) setProjects(projectsRes.data);
+      if (contactRes.data) setContact(contactRes.data);
+      if (footerRes.data) setFooter(footerRes.data);
+      if (msgRes.data) setMessages(msgRes.data);
     } catch (err) {
       console.error(err);
+      notify("Failed to load data");
     } finally {
       setLoading(false);
     }
   };
 
-  // Helper: get next order index
-  const getNextOrderIndex = (items: any[]) => {
-    const max = items.reduce((max, item) => Math.max(max, item.order_index || 0), 0);
-    return max + 1;
-  };
+  const getNextOrderIndex = (items: any[]) =>
+    items.reduce((max, item) => Math.max(max, item.order_index || 0), 0) + 1;
 
-  // ========== HERO ==========
   const updateHero = async () => {
     setSaving(true);
     const { error } = await supabase.from("hero").update(hero).eq("id", hero.id);
-    if (error) alert("Error: " + error.message);
-    else alert("Hero updated!");
+    notify(error ? error.message : "Hero saved");
     setSaving(false);
   };
 
-  // ========== ABOUT ==========
   const updateAbout = async () => {
     setSaving(true);
     const { error } = await supabase.from("about").update(about).eq("id", about.id);
-    if (error) alert("Error: " + error.message);
-    else alert("About updated!");
+    notify(error ? error.message : "About saved");
     setSaving(false);
   };
 
-  // ========== CONTACT ==========
   const updateContact = async () => {
     setSaving(true);
     const { error } = await supabase.from("contact").update(contact).eq("id", contact.id);
-    if (error) alert("Error: " + error.message);
-    else alert("Contact updated!");
+    notify(error ? error.message : "Contact saved");
     setSaving(false);
   };
 
-  // ========== FOOTER ==========
   const updateFooter = async () => {
     setSaving(true);
     const { error } = await supabase.from("footer").update(footer).eq("id", footer.id);
-    if (error) alert("Error: " + error.message);
-    else alert("Footer updated!");
+    notify(error ? error.message : "Footer saved");
     setSaving(false);
   };
 
-  // ========== SERVICES CRUD ==========
   const openAddService = () => {
     setEditingService(null);
     setServiceForm({
@@ -145,7 +215,7 @@ export default function AdminPanel() {
 
   const saveService = async () => {
     const { title, description, icon_name, order_index } = serviceForm;
-    if (!title.trim()) return alert("Title is required");
+    if (!title.trim()) return notify("Title is required");
     setSaving(true);
 
     if (editingService) {
@@ -153,21 +223,23 @@ export default function AdminPanel() {
         .from("services")
         .update({ title, description, icon_name, order_index })
         .eq("id", editingService.id);
-      if (error) alert("Error: " + error.message);
-      else {
-        setServices(services.map(s => s.id === editingService.id ? { ...s, title, description, icon_name, order_index } : s));
-        alert("Service updated!");
+      if (!error) {
+        setServices(
+          services.map((s) =>
+            s.id === editingService.id
+              ? { ...s, title, description, icon_name, order_index }
+              : s
+          )
+        );
       }
+      notify(error ? error.message : "Service updated");
     } else {
       const { data, error } = await supabase
         .from("services")
         .insert([{ title, description, icon_name, order_index }])
         .select();
-      if (error) alert("Error: " + error.message);
-      else {
-        setServices([...services, data[0]]);
-        alert("Service added!");
-      }
+      if (!error && data?.[0]) setServices([...services, data[0]]);
+      notify(error ? error.message : "Service added");
     }
     setSaving(false);
     setShowServiceModal(false);
@@ -177,12 +249,11 @@ export default function AdminPanel() {
     if (!confirm("Delete this service?")) return;
     setSaving(true);
     const { error } = await supabase.from("services").delete().eq("id", id);
-    if (error) alert("Error: " + error.message);
-    else setServices(services.filter(s => s.id !== id));
+    if (!error) setServices(services.filter((s) => s.id !== id));
+    notify(error ? error.message : "Service deleted");
     setSaving(false);
   };
 
-  // ========== PROJECTS CRUD ==========
   const openAddProject = () => {
     setEditingProject(null);
     setProjectForm({
@@ -200,15 +271,13 @@ export default function AdminPanel() {
 
   const openEditProject = (project: any) => {
     setEditingProject(project);
-    // Convert tags array to comma-separated string
-    const tagsStr = (project.tags || []).join(", ");
     setProjectForm({
       title: project.title,
       category: project.category,
       description: project.description || "",
       full_detail: project.full_detail || "",
       image_url: project.image_url || "",
-      tagsString: tagsStr,
+      tagsString: (project.tags || []).join(", "),
       link: project.link || "",
       order_index: project.order_index,
     });
@@ -216,37 +285,76 @@ export default function AdminPanel() {
   };
 
   const saveProject = async () => {
-    const { title, category, description, full_detail, image_url, tagsString, link, order_index } = projectForm;
-    if (!title.trim() || !category.trim()) return alert("Title and Category are required");
+    const {
+      title,
+      category,
+      description,
+      full_detail,
+      image_url,
+      tagsString,
+      link,
+      order_index,
+    } = projectForm;
+    if (!title.trim() || !category.trim()) return notify("Title and category required");
 
-    // Convert comma-separated string to array
     const tags = tagsString
       .split(",")
-      .map(tag => tag.trim())
-      .filter(tag => tag !== "");
+      .map((tag) => tag.trim())
+      .filter(Boolean);
 
     setSaving(true);
-
     if (editingProject) {
       const { error } = await supabase
         .from("projects")
-        .update({ title, category, description, full_detail, image_url, tags, link, order_index })
+        .update({
+          title,
+          category,
+          description,
+          full_detail,
+          image_url,
+          tags,
+          link,
+          order_index,
+        })
         .eq("id", editingProject.id);
-      if (error) alert("Error: " + error.message);
-      else {
-        setProjects(projects.map(p => p.id === editingProject.id ? { ...p, title, category, description, full_detail, image_url, tags, link, order_index } : p));
-        alert("Project updated!");
+      if (!error) {
+        setProjects(
+          projects.map((p) =>
+            p.id === editingProject.id
+              ? {
+                  ...p,
+                  title,
+                  category,
+                  description,
+                  full_detail,
+                  image_url,
+                  tags,
+                  link,
+                  order_index,
+                }
+              : p
+          )
+        );
       }
+      notify(error ? error.message : "Project updated");
     } else {
       const { data, error } = await supabase
         .from("projects")
-        .insert([{ title, category, description, full_detail, image_url, tags, link, order_index }])
+        .insert([
+          {
+            title,
+            category,
+            description,
+            full_detail,
+            image_url,
+            tags,
+            link,
+            order_index,
+          },
+        ])
         .select();
-      if (error) alert("Error: " + error.message);
-      else {
-        setProjects([...projects, data[0]]);
-        alert("Project added!");
-      }
+      if (!error && data?.[0]) setProjects([...projects, data[0]]);
+      notify(error ? error.message : "Project added");
     }
     setSaving(false);
     setShowProjectModal(false);
@@ -256,22 +364,20 @@ export default function AdminPanel() {
     if (!confirm("Delete this project?")) return;
     setSaving(true);
     const { error } = await supabase.from("projects").delete().eq("id", id);
-    if (error) alert("Error: " + error.message);
-    else setProjects(projects.filter(p => p.id !== id));
+    if (!error) setProjects(projects.filter((p) => p.id !== id));
+    notify(error ? error.message : "Project deleted");
     setSaving(false);
   };
 
-  // ========== MESSAGES ==========
   const deleteMessage = async (id: number) => {
     if (!confirm("Delete this message?")) return;
     setSaving(true);
     const { error } = await supabase.from("messages").delete().eq("id", id);
-    if (error) alert("Error: " + error.message);
-    else setMessages(messages.filter(m => m.id !== id));
+    if (!error) setMessages(messages.filter((m) => m.id !== id));
+    notify(error ? error.message : "Message deleted");
     setSaving(false);
   };
 
-  // Helper to safely stringify JSON
   const safeJsonStringify = (obj: any) => {
     try {
       return JSON.stringify(obj, null, 2);
@@ -280,469 +386,576 @@ export default function AdminPanel() {
     }
   };
 
-  // Login screen
   if (!isAuthenticated) {
     return (
-      <div className="h-screen bg-[var(--background)] flex flex-col items-center justify-center gap-4">
-        <h1 className="text-white text-2xl font-black">ADMIN ACCESS</h1>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="bg-white/5 border border-white/10 p-3 rounded-lg text-white w-64"
-          placeholder="Enter Admin Password"
-        />
-        <button onClick={handleLogin} className="bg-[var(--accent)] px-6 py-2 rounded-lg font-bold">
-          Login
-        </button>
+      <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4">
+        <div className="pointer-events-none absolute inset-0 section-grid opacity-30" />
+        <div className="pointer-events-none absolute -left-20 top-20 h-64 w-64 rounded-full bg-[var(--accent)]/15 blur-[100px]" />
+        <div className="pointer-events-none absolute -right-16 bottom-16 h-72 w-72 rounded-full bg-[var(--accent)]/10 blur-[110px]" />
+
+        <form
+          onSubmit={handleLogin}
+          className="relative z-10 w-full max-w-md border border-[var(--border-color)] bg-[var(--card-bg)] p-7 backdrop-blur-md md:p-8"
+        >
+          <div className="mb-6 flex h-11 w-11 items-center justify-center border border-[var(--accent)]/35 bg-[var(--accent-soft)] text-[var(--accent)]">
+            <Lock size={18} />
+          </div>
+          <h1 className="font-display text-3xl uppercase tracking-tight text-[var(--foreground)]">
+            Admin Access
+          </h1>
+          <p className="mt-2 text-sm text-[var(--gray-muted)]">
+            Sign in with the email and password from your `.env.local`.
+          </p>
+
+          <div className="mt-7 space-y-4">
+            <div>
+              <label className={labelClass}>Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={inputClass}
+                placeholder="admin@email.com"
+                required
+                autoComplete="username"
+              />
+            </div>
+            <div>
+              <label className={labelClass}>Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className={inputClass}
+                placeholder="••••••••"
+                required
+                autoComplete="current-password"
+              />
+            </div>
+          </div>
+
+          {loginError && (
+            <p className="mt-4 text-sm text-red-400">{loginError}</p>
+          )}
+
+          <button type="submit" disabled={loggingIn} className={`${btnPrimary} mt-6 w-full`}>
+            {loggingIn ? (
+              <>
+                <Loader2 size={14} className="animate-spin" /> Signing in…
+              </>
+            ) : (
+              "Sign In"
+            )}
+          </button>
+
+          <Link
+            href="/"
+            className="mt-4 flex items-center justify-center gap-2 text-xs font-semibold uppercase tracking-wider text-[var(--gray-muted)] transition hover:text-[var(--accent)]"
+          >
+            <ArrowLeft size={12} /> Back to site
+          </Link>
+        </form>
       </div>
     );
   }
 
   if (loading) {
-    return <div className="text-white text-center p-10">Loading data...</div>;
+    return (
+      <div className="flex min-h-screen items-center justify-center gap-3 text-[var(--gray-light)]">
+        <Loader2 className="animate-spin text-[var(--accent)]" size={20} />
+        Loading dashboard…
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-[var(--background)] text-white p-6 md:p-10">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-black mb-8">Admin Dashboard</h1>
+    <div className="relative min-h-screen">
+      <div className="pointer-events-none absolute inset-0 section-grid opacity-20" />
 
-        {/* Tabs */}
-        <div className="flex flex-wrap gap-3 mb-8 border-b border-white/10 pb-4">
-          {["hero", "about", "services", "projects", "contact", "footer", "messages"].map((tab) => (
+      {toast && (
+        <div className="fixed right-4 top-4 z-[80] border border-[var(--accent)]/35 bg-[var(--background)] px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-[var(--accent)] shadow-lg">
+          {toast}
+        </div>
+      )}
+
+      <header className="sticky top-0 z-40 border-b border-[var(--border-color)] bg-[var(--background)]/90 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 md:px-6">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center border border-[var(--accent)]/30 bg-[var(--accent-soft)] text-[var(--accent)]">
+              <LayoutDashboard size={16} />
+            </div>
+            <div>
+              <p className="font-display text-lg uppercase leading-none text-[var(--foreground)]">
+                Admin
+              </p>
+              <p className="mt-1 text-[10px] uppercase tracking-wider text-[var(--gray-muted)]">
+                Portfolio CMS
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link href="/" className={btnGhost}>
+              <ArrowLeft size={13} /> Site
+            </Link>
+            <button type="button" onClick={handleLogout} className={btnGhost}>
+              <LogOut size={13} /> Logout
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div className="relative z-10 mx-auto max-w-6xl px-4 py-8 md:px-6 md:py-10">
+        <div className="mb-8 flex flex-wrap gap-2 border-b border-[var(--border-color)] pb-4">
+          {TABS.map((tab) => (
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 rounded-lg transition-all ${
-                activeTab === tab ? "bg-[var(--accent)] text-black" : "bg-white/5 hover:bg-white/10"
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-3.5 py-2 text-[11px] font-bold uppercase tracking-[0.14em] transition ${
+                activeTab === tab.id
+                  ? "bg-[var(--accent)] text-black"
+                  : "border border-[var(--border-color)] text-[var(--gray-light)] hover:border-[var(--accent)]/40 hover:text-[var(--foreground)]"
               }`}
             >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              {tab.label}
+              {tab.id === "messages" && messages.length > 0 ? (
+                <span className="ml-1.5 inline-flex h-4 min-w-4 items-center justify-center bg-black/20 px-1 text-[9px]">
+                  {messages.length}
+                </span>
+              ) : null}
             </button>
           ))}
         </div>
 
-        {/* Hero Tab */}
         {activeTab === "hero" && (
-          <div className="bg-white/5 p-6 rounded-xl border border-white/10 space-y-4">
-            <h2 className="text-xl font-bold mb-4">Edit Hero Section</h2>
-            <input
-              type="text"
-              value={hero.title || ""}
-              onChange={(e) => setHero({ ...hero, title: e.target.value })}
-              placeholder="Title"
-              className="w-full bg-black/50 p-3 rounded-lg"
-            />
-            <input
-              type="text"
-              value={hero.subtitle || ""}
-              onChange={(e) => setHero({ ...hero, subtitle: e.target.value })}
-              placeholder="Subtitle"
-              className="w-full bg-black/50 p-3 rounded-lg"
-            />
-            <textarea
-              value={hero.description || ""}
-              onChange={(e) => setHero({ ...hero, description: e.target.value })}
-              placeholder="Description"
-              rows={4}
-              className="w-full bg-black/50 p-3 rounded-lg"
-            />
-            <input
-              type="text"
-              value={hero.image_url || ""}
-              onChange={(e) => setHero({ ...hero, image_url: e.target.value })}
-              placeholder="Image URL"
-              className="w-full bg-black/50 p-3 rounded-lg"
-            />
-            <button
-              onClick={updateHero}
-              disabled={saving}
-              className="bg-[var(--accent)] text-black px-6 py-2 rounded-lg font-bold disabled:opacity-50"
-            >
-              {saving ? "Saving..." : "Save Changes"}
+          <div className={`${panelClass} space-y-4`}>
+            <h2 className="font-display text-xl uppercase text-[var(--foreground)]">Hero</h2>
+            <div>
+              <label className={labelClass}>Title</label>
+              <input
+                className={inputClass}
+                value={hero.title || ""}
+                onChange={(e) => setHero({ ...hero, title: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className={labelClass}>Subtitle</label>
+              <input
+                className={inputClass}
+                value={hero.subtitle || ""}
+                onChange={(e) => setHero({ ...hero, subtitle: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className={labelClass}>Description</label>
+              <textarea
+                className={inputClass}
+                rows={4}
+                value={hero.description || ""}
+                onChange={(e) => setHero({ ...hero, description: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className={labelClass}>Image URL</label>
+              <input
+                className={inputClass}
+                value={hero.image_url || ""}
+                onChange={(e) => setHero({ ...hero, image_url: e.target.value })}
+              />
+            </div>
+            <button type="button" onClick={updateHero} disabled={saving} className={btnPrimary}>
+              <Save size={14} /> {saving ? "Saving…" : "Save Hero"}
             </button>
           </div>
         )}
 
-        {/* About Tab */}
         {activeTab === "about" && (
-          <div className="bg-white/5 p-6 rounded-xl border border-white/10 space-y-4">
-            <h2 className="text-xl font-bold mb-4">Edit About Section</h2>
+          <div className={`${panelClass} space-y-4`}>
+            <h2 className="font-display text-xl uppercase text-[var(--foreground)]">About</h2>
             <div>
-              <label className="block text-sm mb-2">Description Paragraphs (JSON array)</label>
+              <label className={labelClass}>Description paragraphs (JSON array)</label>
               <textarea
+                className={`${inputClass} font-mono text-xs`}
+                rows={7}
                 value={safeJsonStringify(about.description_texts)}
                 onChange={(e) => {
                   try {
-                    const parsed = JSON.parse(e.target.value);
-                    setAbout({ ...about, description_texts: parsed });
-                  } catch (err) {}
+                    setAbout({ ...about, description_texts: JSON.parse(e.target.value) });
+                  } catch {
+                    /* ignore while typing */
+                  }
                 }}
-                rows={6}
-                className="w-full bg-black/50 p-3 rounded-lg font-mono text-sm"
               />
             </div>
             <div>
-              <label className="block text-sm mb-2">Stats (JSON array)</label>
+              <label className={labelClass}>Stats (JSON array)</label>
               <textarea
+                className={`${inputClass} font-mono text-xs`}
+                rows={7}
                 value={safeJsonStringify(about.stats)}
                 onChange={(e) => {
                   try {
-                    const parsed = JSON.parse(e.target.value);
-                    setAbout({ ...about, stats: parsed });
-                  } catch (err) {}
+                    setAbout({ ...about, stats: JSON.parse(e.target.value) });
+                  } catch {
+                    /* ignore while typing */
+                  }
                 }}
-                rows={6}
-                className="w-full bg-black/50 p-3 rounded-lg font-mono text-sm"
               />
             </div>
-            <button
-              onClick={updateAbout}
-              disabled={saving}
-              className="bg-[var(--accent)] text-black px-6 py-2 rounded-lg font-bold disabled:opacity-50"
-            >
-              {saving ? "Saving..." : "Save Changes"}
+            <button type="button" onClick={updateAbout} disabled={saving} className={btnPrimary}>
+              <Save size={14} /> {saving ? "Saving…" : "Save About"}
             </button>
           </div>
         )}
 
-        {/* Services Tab */}
         {activeTab === "services" && (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-bold">Services</h2>
-              <button onClick={openAddService} className="bg-[var(--accent)] text-black px-4 py-2 rounded-lg">
-                + Add New
+          <div className="space-y-5">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="font-display text-xl uppercase text-[var(--foreground)]">Services</h2>
+              <button type="button" onClick={openAddService} className={btnPrimary}>
+                <Plus size={14} /> Add
               </button>
             </div>
-            <div className="grid gap-4">
+            <div className="grid gap-3">
               {services.map((service) => (
-                <div key={service.id} className="bg-white/5 p-4 rounded-xl border border-white/10 flex justify-between items-start">
+                <div key={service.id} className={`${panelClass} flex items-start justify-between gap-4`}>
                   <div>
-                    <h3 className="font-bold">{service.title}</h3>
-                    <p className="text-sm text-gray-400">{service.description}</p>
-                    <p className="text-xs text-gray-500 mt-1">Icon: {service.icon_name}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--accent)]">
+                      #{service.order_index} · {service.icon_name}
+                    </p>
+                    <h3 className="mt-1 font-display text-lg text-[var(--foreground)]">
+                      {service.title}
+                    </h3>
+                    <p className="mt-1 text-sm text-[var(--gray-light)]">{service.description}</p>
                   </div>
-                  <div className="flex gap-2">
-                    <button onClick={() => openEditService(service)} className="text-accent hover:underline">
-                      Edit
+                  <div className="flex shrink-0 gap-2">
+                    <button type="button" onClick={() => openEditService(service)} className={btnGhost}>
+                      <Pencil size={13} />
                     </button>
-                    <button onClick={() => deleteService(service.id)} className="text-red-500 hover:underline">
-                      Delete
+                    <button
+                      type="button"
+                      onClick={() => deleteService(service.id)}
+                      className="inline-flex h-[38px] w-[38px] items-center justify-center border border-red-500/30 text-red-400 transition hover:bg-red-500/10"
+                    >
+                      <Trash2 size={13} />
                     </button>
                   </div>
                 </div>
               ))}
             </div>
-
-            {/* Service Modal */}
-            {showServiceModal && (
-              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                <div className="bg-[#111112] p-6 rounded-xl max-w-lg w-full border border-white/10">
-                  <h3 className="text-xl font-bold mb-4">{editingService ? "Edit Service" : "Add Service"}</h3>
-                  <input
-                    type="text"
-                    placeholder="Title"
-                    value={serviceForm.title}
-                    onChange={(e) => setServiceForm({ ...serviceForm, title: e.target.value })}
-                    className="w-full bg-black/50 p-3 rounded-lg mb-3"
-                  />
-                  <textarea
-                    placeholder="Description"
-                    value={serviceForm.description}
-                    onChange={(e) => setServiceForm({ ...serviceForm, description: e.target.value })}
-                    className="w-full bg-black/50 p-3 rounded-lg mb-3"
-                    rows={3}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Icon Name (e.g., Globe, Layout)"
-                    value={serviceForm.icon_name}
-                    onChange={(e) => setServiceForm({ ...serviceForm, icon_name: e.target.value })}
-                    className="w-full bg-black/50 p-3 rounded-lg mb-3"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Order Index"
-                    value={serviceForm.order_index}
-                    onChange={(e) => setServiceForm({ ...serviceForm, order_index: parseInt(e.target.value) || 0 })}
-                    className="w-full bg-black/50 p-3 rounded-lg mb-3"
-                  />
-                  <div className="flex gap-3 justify-end">
-                    <button onClick={() => setShowServiceModal(false)} className="px-4 py-2 rounded-lg border">
-                      Cancel
-                    </button>
-                    <button onClick={saveService} disabled={saving} className="bg-[var(--accent)] text-black px-4 py-2 rounded-lg">
-                      {saving ? "Saving..." : "Save"}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         )}
 
-        {/* Projects Tab */}
         {activeTab === "projects" && (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-bold">Projects</h2>
-              <button onClick={openAddProject} className="bg-[var(--accent)] text-black px-4 py-2 rounded-lg">
-                + Add New
+          <div className="space-y-5">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="font-display text-xl uppercase text-[var(--foreground)]">Projects</h2>
+              <button type="button" onClick={openAddProject} className={btnPrimary}>
+                <Plus size={14} /> Add
               </button>
             </div>
-            <div className="grid gap-4">
+            <div className="grid gap-3">
               {projects.map((project) => (
-                <div key={project.id} className="bg-white/5 p-4 rounded-xl border border-white/10 flex justify-between items-start">
-                  <div>
-                    <h3 className="font-bold">{project.title}</h3>
-                    <p className="text-sm text-gray-400">{project.category}</p>
-                    <p className="text-xs text-gray-500 mt-1 truncate max-w-md">{project.link}</p>
-                    {project.tags && project.tags.length > 0 && (
-                      <p className="text-xs text-gray-400 mt-1">Tags: {project.tags.join(", ")}</p>
+                <div key={project.id} className={`${panelClass} flex items-start justify-between gap-4`}>
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--accent)]">
+                      #{project.order_index} · {project.category}
+                    </p>
+                    <h3 className="mt-1 font-display text-lg text-[var(--foreground)]">
+                      {project.title}
+                    </h3>
+                    <p className="mt-1 truncate text-sm text-[var(--gray-muted)]">{project.link}</p>
+                    {(project.tags || []).length > 0 && (
+                      <p className="mt-2 text-xs text-[var(--gray-light)]">
+                        {(project.tags || []).join(" · ")}
+                      </p>
                     )}
                   </div>
-                  <div className="flex gap-2">
-                    <button onClick={() => openEditProject(project)} className="text-accent hover:underline">
-                      Edit
+                  <div className="flex shrink-0 gap-2">
+                    <button type="button" onClick={() => openEditProject(project)} className={btnGhost}>
+                      <Pencil size={13} />
                     </button>
-                    <button onClick={() => deleteProject(project.id)} className="text-red-500 hover:underline">
-                      Delete
+                    <button
+                      type="button"
+                      onClick={() => deleteProject(project.id)}
+                      className="inline-flex h-[38px] w-[38px] items-center justify-center border border-red-500/30 text-red-400 transition hover:bg-red-500/10"
+                    >
+                      <Trash2 size={13} />
                     </button>
                   </div>
                 </div>
               ))}
             </div>
-
-            {/* Project Modal */}
-            {showProjectModal && (
-              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-                <div className="bg-[#111112] p-6 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-white/10">
-                  <h3 className="text-xl font-bold mb-4">{editingProject ? "Edit Project" : "Add Project"}</h3>
-                  <input
-                    type="text"
-                    placeholder="Title"
-                    value={projectForm.title}
-                    onChange={(e) => setProjectForm({ ...projectForm, title: e.target.value })}
-                    className="w-full bg-black/50 p-3 rounded-lg mb-3"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Category"
-                    value={projectForm.category}
-                    onChange={(e) => setProjectForm({ ...projectForm, category: e.target.value })}
-                    className="w-full bg-black/50 p-3 rounded-lg mb-3"
-                  />
-                  <textarea
-                    placeholder="Short Description"
-                    value={projectForm.description}
-                    onChange={(e) => setProjectForm({ ...projectForm, description: e.target.value })}
-                    className="w-full bg-black/50 p-3 rounded-lg mb-3"
-                    rows={2}
-                  />
-                  <textarea
-                    placeholder="Full Detail"
-                    value={projectForm.full_detail}
-                    onChange={(e) => setProjectForm({ ...projectForm, full_detail: e.target.value })}
-                    className="w-full bg-black/50 p-3 rounded-lg mb-3"
-                    rows={4}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Image URL"
-                    value={projectForm.image_url}
-                    onChange={(e) => setProjectForm({ ...projectForm, image_url: e.target.value })}
-                    className="w-full bg-black/50 p-3 rounded-lg mb-3"
-                  />
-                  <div>
-                    <label className="text-xs text-gray-400 mb-1 block">Tags (comma‑separated, e.g., React, Next.js, Tailwind)</label>
-                    <input
-                      type="text"
-                      placeholder="React, Next.js, Tailwind"
-                      value={projectForm.tagsString}
-                      onChange={(e) => setProjectForm({ ...projectForm, tagsString: e.target.value })}
-                      className="w-full bg-black/50 p-3 rounded-lg mb-3"
-                    />
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Project Link (URL)"
-                    value={projectForm.link}
-                    onChange={(e) => setProjectForm({ ...projectForm, link: e.target.value })}
-                    className="w-full bg-black/50 p-3 rounded-lg mb-3"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Order Index"
-                    value={projectForm.order_index}
-                    onChange={(e) => setProjectForm({ ...projectForm, order_index: parseInt(e.target.value) || 0 })}
-                    className="w-full bg-black/50 p-3 rounded-lg mb-3"
-                  />
-                  <div className="flex gap-3 justify-end">
-                    <button onClick={() => setShowProjectModal(false)} className="px-4 py-2 rounded-lg border">
-                      Cancel
-                    </button>
-                    <button onClick={saveProject} disabled={saving} className="bg-[var(--accent)] text-black px-4 py-2 rounded-lg">
-                      {saving ? "Saving..." : "Save"}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         )}
 
-        {/* Contact Tab */}
         {activeTab === "contact" && (
-          <div className="bg-white/5 p-6 rounded-xl border border-white/10 space-y-4">
-            <h2 className="text-xl font-bold mb-4">Edit Contact Info</h2>
-            <input
-              type="email"
-              value={contact.email || ""}
-              onChange={(e) => setContact({ ...contact, email: e.target.value })}
-              placeholder="Email"
-              className="w-full bg-black/50 p-3 rounded-lg"
-            />
-            <input
-              type="text"
-              value={contact.linkedin_url || ""}
-              onChange={(e) => setContact({ ...contact, linkedin_url: e.target.value })}
-              placeholder="LinkedIn URL"
-              className="w-full bg-black/50 p-3 rounded-lg"
-            />
-            <input
-              type="text"
-              value={contact.linkedin_name || ""}
-              onChange={(e) => setContact({ ...contact, linkedin_name: e.target.value })}
-              placeholder="LinkedIn Name"
-              className="w-full bg-black/50 p-3 rounded-lg"
-            />
-            <button
-              onClick={updateContact}
-              disabled={saving}
-              className="bg-[var(--accent)] text-black px-6 py-2 rounded-lg font-bold disabled:opacity-50"
-            >
-              {saving ? "Saving..." : "Save Changes"}
+          <div className={`${panelClass} space-y-4`}>
+            <h2 className="font-display text-xl uppercase text-[var(--foreground)]">Contact</h2>
+            <div>
+              <label className={labelClass}>Email</label>
+              <input
+                className={inputClass}
+                type="email"
+                value={contact.email || ""}
+                onChange={(e) => setContact({ ...contact, email: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className={labelClass}>LinkedIn URL</label>
+              <input
+                className={inputClass}
+                value={contact.linkedin_url || ""}
+                onChange={(e) => setContact({ ...contact, linkedin_url: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className={labelClass}>LinkedIn name</label>
+              <input
+                className={inputClass}
+                value={contact.linkedin_name || ""}
+                onChange={(e) => setContact({ ...contact, linkedin_name: e.target.value })}
+              />
+            </div>
+            <button type="button" onClick={updateContact} disabled={saving} className={btnPrimary}>
+              <Save size={14} /> {saving ? "Saving…" : "Save Contact"}
             </button>
           </div>
         )}
 
-        {/* Footer Tab */}
         {activeTab === "footer" && (
-          <div className="bg-white/5 p-6 rounded-xl border border-white/10 space-y-4">
-            <h2 className="text-xl font-bold mb-4">Edit Footer</h2>
-            <input
-              type="text"
-              value={footer.logo_text || ""}
-              onChange={(e) => setFooter({ ...footer, logo_text: e.target.value })}
-              placeholder="Logo Text"
-              className="w-full bg-black/50 p-3 rounded-lg"
-            />
-            <input
-              type="text"
-              value={footer.tagline || ""}
-              onChange={(e) => setFooter({ ...footer, tagline: e.target.value })}
-              placeholder="Tagline"
-              className="w-full bg-black/50 p-3 rounded-lg"
-            />
+          <div className={`${panelClass} space-y-4`}>
+            <h2 className="font-display text-xl uppercase text-[var(--foreground)]">Footer</h2>
             <div>
-              <label>Navigation Links (JSON)</label>
-              <textarea
-                value={safeJsonStringify(footer.navigation_links)}
-                onChange={(e) => {
-                  try {
-                    const parsed = JSON.parse(e.target.value);
-                    setFooter({ ...footer, navigation_links: parsed });
-                  } catch (err) {}
-                }}
-                rows={4}
-                className="w-full bg-black/50 p-3 rounded-lg font-mono text-sm"
+              <label className={labelClass}>Logo text</label>
+              <input
+                className={inputClass}
+                value={footer.logo_text || ""}
+                onChange={(e) => setFooter({ ...footer, logo_text: e.target.value })}
               />
             </div>
             <div>
-              <label>Portfolio Links (JSON)</label>
-              <textarea
-                value={safeJsonStringify(footer.portfolio_links)}
-                onChange={(e) => {
-                  try {
-                    const parsed = JSON.parse(e.target.value);
-                    setFooter({ ...footer, portfolio_links: parsed });
-                  } catch (err) {}
-                }}
-                rows={4}
-                className="w-full bg-black/50 p-3 rounded-lg font-mono text-sm"
+              <label className={labelClass}>Tagline</label>
+              <input
+                className={inputClass}
+                value={footer.tagline || ""}
+                onChange={(e) => setFooter({ ...footer, tagline: e.target.value })}
+              />
+            </div>
+            {[
+              ["navigation_links", "Navigation links (JSON)"],
+              ["portfolio_links", "Portfolio links (JSON)"],
+              ["social_links", "Social links (JSON)"],
+            ].map(([key, label]) => (
+              <div key={key}>
+                <label className={labelClass}>{label}</label>
+                <textarea
+                  className={`${inputClass} font-mono text-xs`}
+                  rows={4}
+                  value={safeJsonStringify(footer[key])}
+                  onChange={(e) => {
+                    try {
+                      setFooter({ ...footer, [key]: JSON.parse(e.target.value) });
+                    } catch {
+                      /* ignore while typing */
+                    }
+                  }}
+                />
+              </div>
+            ))}
+            <div>
+              <label className={labelClass}>Cloud text</label>
+              <input
+                className={inputClass}
+                value={footer.cloud_text || ""}
+                onChange={(e) => setFooter({ ...footer, cloud_text: e.target.value })}
               />
             </div>
             <div>
-              <label>Social Links (JSON)</label>
-              <textarea
-                value={safeJsonStringify(footer.social_links)}
-                onChange={(e) => {
-                  try {
-                    const parsed = JSON.parse(e.target.value);
-                    setFooter({ ...footer, social_links: parsed });
-                  } catch (err) {}
-                }}
-                rows={4}
-                className="w-full bg-black/50 p-3 rounded-lg font-mono text-sm"
+              <label className={labelClass}>Copyright</label>
+              <input
+                className={inputClass}
+                value={footer.copyright_text || ""}
+                onChange={(e) => setFooter({ ...footer, copyright_text: e.target.value })}
               />
             </div>
-            <input
-              type="text"
-              value={footer.cloud_text || ""}
-              onChange={(e) => setFooter({ ...footer, cloud_text: e.target.value })}
-              placeholder="Cloud Text"
-              className="w-full bg-black/50 p-3 rounded-lg"
-            />
-            <input
-              type="text"
-              value={footer.copyright_text || ""}
-              onChange={(e) => setFooter({ ...footer, copyright_text: e.target.value })}
-              placeholder="Copyright Text"
-              className="w-full bg-black/50 p-3 rounded-lg"
-            />
-            <input
-              type="text"
-              value={footer.designed_by || ""}
-              onChange={(e) => setFooter({ ...footer, designed_by: e.target.value })}
-              placeholder="Designed By"
-              className="w-full bg-black/50 p-3 rounded-lg"
-            />
-            <button
-              onClick={updateFooter}
-              disabled={saving}
-              className="bg-[var(--accent)] text-black px-6 py-2 rounded-lg font-bold disabled:opacity-50"
-            >
-              {saving ? "Saving..." : "Save Changes"}
+            <div>
+              <label className={labelClass}>Designed by</label>
+              <input
+                className={inputClass}
+                value={footer.designed_by || ""}
+                onChange={(e) => setFooter({ ...footer, designed_by: e.target.value })}
+              />
+            </div>
+            <button type="button" onClick={updateFooter} disabled={saving} className={btnPrimary}>
+              <Save size={14} /> {saving ? "Saving…" : "Save Footer"}
             </button>
           </div>
         )}
 
-        {/* Messages Tab */}
         {activeTab === "messages" && (
           <div className="space-y-4">
-            <h2 className="text-xl font-bold mb-4">User Messages</h2>
-            {messages.length === 0 && <p>No messages yet.</p>}
+            <h2 className="font-display text-xl uppercase text-[var(--foreground)]">Messages</h2>
+            {messages.length === 0 && (
+              <div className={`${panelClass} text-sm text-[var(--gray-muted)]`}>
+                No messages yet.
+              </div>
+            )}
             {messages.map((msg) => (
-              <div key={msg.id} className="bg-white/5 p-4 rounded-xl border border-white/10">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="font-bold">
-                      {msg.name} ({msg.email})
+              <div key={msg.id} className={`${panelClass} flex items-start justify-between gap-4`}>
+                <div>
+                  <div className="flex items-center gap-2 text-[var(--accent)]">
+                    <Mail size={14} />
+                    <p className="text-sm font-semibold text-[var(--foreground)]">
+                      {msg.name} · {msg.email}
                     </p>
-                    <p className="text-gray-400 mt-2">{msg.message}</p>
-                    <p className="text-xs text-gray-500 mt-2">{new Date(msg.created_at).toLocaleString()}</p>
                   </div>
-                  <button onClick={() => deleteMessage(msg.id)} className="text-red-500 hover:text-red-400">
-                    Delete
-                  </button>
+                  <p className="mt-2 text-sm leading-relaxed text-[var(--gray-light)]">
+                    {msg.message}
+                  </p>
+                  <p className="mt-2 text-[10px] uppercase tracking-wider text-[var(--gray-muted)]">
+                    {new Date(msg.created_at).toLocaleString()}
+                  </p>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => deleteMessage(msg.id)}
+                  className="inline-flex h-[38px] w-[38px] shrink-0 items-center justify-center border border-red-500/30 text-red-400 transition hover:bg-red-500/10"
+                >
+                  <Trash2 size={13} />
+                </button>
               </div>
             ))}
           </div>
         )}
       </div>
+
+      {showServiceModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-lg border border-[var(--border-color)] bg-[var(--background)] p-6">
+            <h3 className="font-display text-xl uppercase">
+              {editingService ? "Edit Service" : "Add Service"}
+            </h3>
+            <div className="mt-5 space-y-3">
+              <input
+                className={inputClass}
+                placeholder="Title"
+                value={serviceForm.title}
+                onChange={(e) => setServiceForm({ ...serviceForm, title: e.target.value })}
+              />
+              <textarea
+                className={inputClass}
+                rows={3}
+                placeholder="Description"
+                value={serviceForm.description}
+                onChange={(e) => setServiceForm({ ...serviceForm, description: e.target.value })}
+              />
+              <input
+                className={inputClass}
+                placeholder="Icon name (Globe, Layout…)"
+                value={serviceForm.icon_name}
+                onChange={(e) => setServiceForm({ ...serviceForm, icon_name: e.target.value })}
+              />
+              <input
+                className={inputClass}
+                type="number"
+                placeholder="Order"
+                value={serviceForm.order_index}
+                onChange={(e) =>
+                  setServiceForm({
+                    ...serviceForm,
+                    order_index: parseInt(e.target.value) || 0,
+                  })
+                }
+              />
+            </div>
+            <div className="mt-5 flex justify-end gap-2">
+              <button type="button" onClick={() => setShowServiceModal(false)} className={btnGhost}>
+                Cancel
+              </button>
+              <button type="button" onClick={saveService} disabled={saving} className={btnPrimary}>
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showProjectModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/70 p-4 backdrop-blur-sm">
+          <div className="my-4 w-full max-w-2xl border border-[var(--border-color)] bg-[var(--background)] p-6">
+            <h3 className="font-display text-xl uppercase">
+              {editingProject ? "Edit Project" : "Add Project"}
+            </h3>
+            <div className="mt-5 grid gap-3">
+              <input
+                className={inputClass}
+                placeholder="Title"
+                value={projectForm.title}
+                onChange={(e) => setProjectForm({ ...projectForm, title: e.target.value })}
+              />
+              <input
+                className={inputClass}
+                placeholder="Category"
+                value={projectForm.category}
+                onChange={(e) => setProjectForm({ ...projectForm, category: e.target.value })}
+              />
+              <textarea
+                className={inputClass}
+                rows={2}
+                placeholder="Short description"
+                value={projectForm.description}
+                onChange={(e) => setProjectForm({ ...projectForm, description: e.target.value })}
+              />
+              <textarea
+                className={inputClass}
+                rows={4}
+                placeholder="Full detail"
+                value={projectForm.full_detail}
+                onChange={(e) => setProjectForm({ ...projectForm, full_detail: e.target.value })}
+              />
+              <input
+                className={inputClass}
+                placeholder="Image URL"
+                value={projectForm.image_url}
+                onChange={(e) => setProjectForm({ ...projectForm, image_url: e.target.value })}
+              />
+              <input
+                className={inputClass}
+                placeholder="Tags (comma separated)"
+                value={projectForm.tagsString}
+                onChange={(e) => setProjectForm({ ...projectForm, tagsString: e.target.value })}
+              />
+              <input
+                className={inputClass}
+                placeholder="Live link"
+                value={projectForm.link}
+                onChange={(e) => setProjectForm({ ...projectForm, link: e.target.value })}
+              />
+              <input
+                className={inputClass}
+                type="number"
+                placeholder="Order"
+                value={projectForm.order_index}
+                onChange={(e) =>
+                  setProjectForm({
+                    ...projectForm,
+                    order_index: parseInt(e.target.value) || 0,
+                  })
+                }
+              />
+            </div>
+            <div className="mt-5 flex justify-end gap-2">
+              <button type="button" onClick={() => setShowProjectModal(false)} className={btnGhost}>
+                Cancel
+              </button>
+              <button type="button" onClick={saveProject} disabled={saving} className={btnPrimary}>
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

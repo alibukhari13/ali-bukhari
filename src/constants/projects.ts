@@ -3,12 +3,12 @@
 export const PROJECTS = [
   {
     id: "01",
-    title: "RUTE | Home and Products services",
+    title: "RUTE | Home and Product Services",
     category: "Web Application",
     description:
-      "Home Services is a platform connecting users with service professionals for home maintenance",
+      "A platform connecting users with service professionals for home maintenance, booking, and payments.",
     fullDetail:
-      "Home Services is a platform connecting users with service professionals for home maintenance. It offers easy booking, real-time updates, secure payments, and admin controls.My Contribution:I handled full-stack development, UI/UX design, API integration, deployment, and security using Next.js, TypeScript, Tailwind CSS, Supabase, and React.Tools:Next.js, TypeScript, Tailwind CSS, Supabase, React, Node.js",
+      "RUTE connects users with service professionals for home maintenance. It supports easy booking, real-time updates, secure payments, and admin controls. Contribution: full-stack development, UI/UX, API integration, and deployment with Next.js, TypeScript, Tailwind CSS, Supabase, and React.",
     image:
       "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1200",
     tags: [
@@ -22,12 +22,12 @@ export const PROJECTS = [
   },
   {
     id: "02",
-    title: "Burako Solutions - IT Services and IT Consulting",
+    title: "Burako Solutions — IT Services",
     category: "Web Application",
     description:
-      "Built a full-stack Next.js application for Burako Solutions, ",
+      "A responsive IT services platform with dynamic CMS content and performance-focused delivery.",
     fullDetail:
-      "Built a full-stack Next.js application for Burako Solutions, delivering a responsive IT services platform with dynamic content via Contentful CMS and performance-focused optimization. My Contribution: Developed frontend & backend, integrated CMS, designed responsive UI, and implemented API-driven content. Stack: Next.js, Tailwind CSS, Contentful, API Integration",
+      "Built a full-stack Next.js application for Burako Solutions — a responsive IT services platform with Contentful CMS and API-driven content. Contribution: frontend and backend development, CMS integration, and responsive UI with Next.js, Tailwind CSS, and Contentful.",
     image:
       "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=1200",
     tags: [
@@ -41,38 +41,40 @@ export const PROJECTS = [
   },
   {
     id: "03",
-    title: "PlenumPro – Saas, Business Operations for Service-Based Companies",
+    title: "PlenumPro — Business Operations SaaS",
     category: "Web Application",
-    description: "Contributed as a Frontend Developer to build a modern platform that streamlines appointment scheduling",
+    description:
+      "Frontend work on a scheduling and operations platform for service-based companies.",
     fullDetail:
-      "Contributed as a Frontend Developer to build a modern platform that streamlines appointment scheduling and business operations for service-based companies. The system offers an intuitive interface with calendar tools, analytics, and customer management features.  🛠️ Tech Stack: Built using a scalable monorepo architecture with React.js, integrated Google Maps for spatial planning, and used Auth0 for secure authentication.  🎯 Features: Custom calendar UI, Google Maps integration to display appointments by location, responsive table design, and role-based access control.",
+      "Contributed as a Frontend Developer on PlenumPro, a platform for appointment scheduling and business operations. Features include calendar tools, analytics, customer management, Google Maps location views, and role-based access. Stack: React.js, Next.js, Auth0, and Google Maps in a scalable monorepo.",
     image:
       "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200",
-    tags: ["React Js", "Next Js", "Auth0", "Google Maps", "Google MapsStripe"],
+    tags: ["React.js", "Next.js", "Auth0", "Google Maps", "Frontend"],
     link: "http://plenum.pro/",
   },
- {
+  {
     id: "04",
-    title: "Brars – E-Commerce Platform",
+    title: "Brars — E-Commerce Platform",
     category: "E-Commerce Store",
-    description: "Forecasting urban climate trends using satellite data.",
-    fullDetail: 
-    "Developed a modern e-commerce platform designed to offer a seamless online shopping experience with a fast and responsive interface.  My Contribution Worked as a Full-Stack Developer, building both frontend and backend modules using Next.js and Node.js. Implemented product listings, cart, and order management with secure API integrations.  Tools & Technologies Next.js, React, Node.js, Supabase, TailwindCSS" ,
+    description:
+      "A modern e-commerce experience with product listings, cart, and order management.",
+    fullDetail:
+      "Developed a modern e-commerce platform focused on a fast, responsive shopping experience. Contribution: full-stack modules with Next.js and Node.js, including product listings, cart, order management, and secure API integrations. Stack: Next.js, React, Node.js, Supabase, Tailwind CSS.",
     image:
-      "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200",
+      "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=1200",
     tags: ["Next.js", "React", "Supabase", "Full-Stack Development", "Ecommerce"],
     link: "https://www.brars.com/",
   },
-{
+  {
     id: "05",
-    title: "Jobs-Pulse – Upwork Proposal Assistant",
+    title: "Jobs-Pulse — Upwork Proposal Assistant",
     category: "Web Software",
     description:
-      "JobPulse is an advanced AI-powered automation platform designed for Upwork freelancers. ",
-    fullDetail: 
-    "JobPulse includes advanced features such as real-time deep scraping to automatically fetch the latest job listings from Upwork and display them on a premium dashboard, along with an AI-powered proposal engine that analyzes job descriptions and user portfolios to generate professional, tailored proposals within seconds. It also offers a portfolio memory bank for managing past projects and links, AI training and history to adapt to the user’s writing style over time, a custom logic builder with a drag-and-drop interface for defining proposal structures, and smart lifecycle management with job expiry timers to keep opportunities fresh and relevant. The platform is built using Next.js 14/15 (App Router) and React.js, styled with Tailwind CSS (premium dark UI), and powered by Supabase (PostgreSQL) for database and authentication, along with OpenAI API and custom AI logic for intelligent automation.",
+      "An AI-assisted platform that helps freelancers find jobs and generate tailored proposals.",
+    fullDetail:
+      "JobPulse helps Upwork freelancers with job discovery and proposal generation. It includes a dashboard for listings, an AI proposal engine, portfolio memory, custom proposal logic, and lifecycle tools. Built with Next.js, React, Tailwind CSS, Supabase, and OpenAI APIs.",
     image:
-      "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=1200",
+      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200",
     tags: [
       "Next.js",
       "Tailwind CSS",
@@ -82,23 +84,17 @@ export const PROJECTS = [
     ],
     link: "https://jobs-pulse-two.vercel.app/",
   },
-{
+  {
     id: "06",
-    title: "Zuhd – Islamic Knowledge Platform",
+    title: "Zuhd — Islamic Knowledge Platform",
     category: "Website",
     description:
-      "Zuhd is a modern Islamic educational platform focused on delivering authentic and accessible Islamic",
+      "A content-driven educational platform for Islamic learning, courses, and community resources.",
     fullDetail:
-     "Zuhd is a modern Islamic educational platform focused on delivering authentic and accessible Islamic knowledge through digital content, courses, and community initiatives. The platform provides lectures, blogs, short reminders, and structured learning programs based on the Qur’an and Sunnah, aiming to inspire spiritual growth and strengthen the connection between Muslims and their faith. It also includes features such as Islamic courses (Quran, Hadith, Fiqh, and history), after-school educational programs (Maktab), and engaging multimedia content like videos and daily reminders, making it suitable for users of all ages. Built as a content-driven and community-focused platform, Zuhd combines traditional Islamic teachings with modern technology to create an interactive and meaningful learning experience for a global audience",
+      "Zuhd delivers Islamic knowledge through lectures, blogs, courses, and community programs based on the Qur’an and Sunnah. It includes structured learning paths, multimedia content, and after-school programs. Built as a content-focused web platform with modern frontend tooling.",
     image:
-      "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1200",
-    tags: [
-      "Javascript",
-      "Tailwind CSS",
-      "Youtube Integration",
-            "Full-Stack Development",
-
-    ],
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1200",
+    tags: ["JavaScript", "Tailwind CSS", "YouTube Integration", "Full-Stack Development"],
     link: "https://zuhd.au/",
   },
 ];

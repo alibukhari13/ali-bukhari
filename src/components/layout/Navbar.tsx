@@ -3,177 +3,229 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Sun, Moon, Menu, X } from "lucide-react";
+import { Sun, Moon, Menu, X, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
 
+const NAV_LINKS = [
+  { id: "home", name: "Home", href: "#home" },
+  { id: "about", name: "About", href: "#about" },
+  { id: "experience", name: "Work", href: "#experience" },
+  { id: "services", name: "Services", href: "#services" },
+  { id: "projects", name: "Projects", href: "#projects" },
+] as const;
+
 const Navbar = () => {
-  const [activeSection, setActiveSection] = useState("Home");
-  const { theme, setTheme } = useTheme();
+  const [activeSection, setActiveSection] = useState("home");
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [mounted, setMounted] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    const isLight = document.documentElement.classList.contains("light");
+    setTheme(isLight ? "light" : "dark");
   }, []);
 
-  // Intersection Observer Logic (Aapki original logic)
   useEffect(() => {
-    const sections = document.querySelectorAll("section[id]");
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const id = entry.target.getAttribute("id") || "";
-            const sectionName = id.charAt(0).toUpperCase() + id.slice(1);
-            setActiveSection(sectionName === "" ? "Home" : sectionName);
-          }
-        });
-      },
-      { threshold: 0.5, rootMargin: "-80px 0px 0px 0px" }
-    );
+    const updateActive = () => {
+      const marker = 130;
+      let current = "home";
+      const all = [...NAV_LINKS, { id: "contact", name: "Contact", href: "#contact" }];
 
-    sections.forEach((section) => observer.observe(section));
+      for (const link of all) {
+        const el = document.getElementById(link.id);
+        if (!el) continue;
+        if (el.getBoundingClientRect().top - marker <= 0) current = link.id;
+      }
 
-    const handleScrollTop = () => {
-      if (window.scrollY < 100) setActiveSection("Home");
+      setActiveSection(current);
+      setScrolled(window.scrollY > 12);
     };
-    window.addEventListener("scroll", handleScrollTop);
 
+    updateActive();
+    window.addEventListener("scroll", updateActive, { passive: true });
+    window.addEventListener("resize", updateActive);
     return () => {
-      sections.forEach((section) => observer.unobserve(section));
-      window.removeEventListener("scroll", handleScrollTop);
+      window.removeEventListener("scroll", updateActive);
+      window.removeEventListener("resize", updateActive);
     };
   }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = isMobileMenuOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileMenuOpen]);
 
   const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    document.documentElement.classList.toggle("dark", next === "dark");
+    document.documentElement.classList.toggle("light", next === "light");
   };
 
-  const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "About", href: "#about" },
-    { name: "Services", href: "#services" },
-    { name: "Projects", href: "#projects" },
-  ];
-
   return (
-    <header className="fixed top-0 left-0 right-0 z-[100] px-4 sm:px-6 lg:px-8 pt-4 transition-all duration-300 font-sans">
-      <nav
-        role="navigation"
-        className="max-w-[1200px] mx-auto flex items-center justify-between px-6 py-2.5 rounded-xl transition-all duration-300 bg-[var(--background)]/60 backdrop-blur-xl shadow-lg border border-[var(--border-color)] relative"
+    <header
+      className={cn(
+        "fixed inset-x-0 top-0 z-[100] transition-all duration-300",
+        scrolled ? "pt-0" : "pt-3 sm:pt-4"
+      )}
+    >
+      <div
+        className={cn(
+          "mx-auto transition-all duration-300",
+          scrolled ? "max-w-none px-0" : "max-w-[1180px] px-3 sm:px-4 md:px-6"
+        )}
       >
-        {/* LOGO AREA */}
-        <Link 
-          href="/" 
-          className="text-xl md:text-2xl font-cursive text-[var(--foreground)] shrink-0 relative z-[210]"
+        <nav
+          className={cn(
+            "relative flex h-[58px] items-center justify-between gap-3 transition-all duration-300 sm:h-16",
+            scrolled
+              ? "border-b border-[var(--border-color)] bg-[var(--background)]/90 px-4 shadow-[0_8px_32px_rgba(0,0,0,0.28)] backdrop-blur-2xl sm:px-6 lg:px-10"
+              : "border border-[var(--border-color)] bg-[var(--background)]/70 px-3 backdrop-blur-xl sm:px-4"
+          )}
         >
-          ALI BUKHARI
-        </Link>
-
-        {/* Vertical Divider (Desktop Only) */}
-
-        {/* Desktop Navigation Links */}
-        <ul className="hidden md:flex items-center gap-1.5 text-sm font-medium absolute left-1/2 -translate-x-1/2">
-          {navLinks.map((link) => (
-            <li key={link.name}>
-              <Link
-                href={link.href}
-                className={cn(
-                  "px-3.5 py-1.5 text-[14px] transition-all duration-200 font-normal rounded-lg hover:bg-[var(--foreground)]/5",
-                  activeSection === link.name
-                    ? "text-[var(--accent)]"
-                    : "text-[var(--gray-light)] hover:text-[var(--foreground)]"
-                )}
-              >
-                {link.name}
-              </Link>
-            </li>
-          ))}
-        </ul>
-
-        {/* Right Side Actions */}
-        <div className="flex items-center gap-4 relative z-[210]">
-          {/* Contact Button (Inspired Style) */}
+          {/* Brand */}
           <Link
-            href="#contact"
-            className="hidden md:inline-flex items-center px-5 py-2 text-[13px] font-bold text-[var(--foreground)] border border-[var(--border-color)] rounded-xl hover:border-[var(--accent)] transition-all duration-300"
+            href="#home"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="relative z-[60] flex shrink-0 items-center gap-2.5"
           >
-            Contact Me
+            <span className="flex h-8 w-8 items-center justify-center bg-[var(--accent)] font-display text-xs font-bold text-black">
+              AE
+            </span>
+            <span className="font-cursive text-[1.55rem] leading-none text-[var(--foreground)] transition hover:text-[var(--accent)] sm:text-[1.7rem]">
+              Ali Eman
+            </span>
           </Link>
 
-          {/* Theme Toggle */}
-          <button
-            onClick={toggleTheme}
-            className="p-2 text-[var(--gray-light)] hover:text-[var(--foreground)] cursor-pointer transition-colors bg-[var(--foreground)]/5 rounded-lg"
-          >
-            {mounted && theme === "light" ? (
-              <Moon size={18} strokeWidth={1.5} />
-            ) : (
-              <Sun size={18} strokeWidth={1.5} />
-            )}
-          </button>
-
-          {/* Hamburger Icon (Mobile) */}
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden text-[var(--gray-light)] p-2 hover:bg-[var(--foreground)]/10 rounded-xl transition-all"
-          >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
-
-        {/* Mobile Menu logic (TECHZOQ style) */}
-        <AnimatePresence>
-          {isMobileMenuOpen && (
-            <>
-              {/* Backdrop */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[150] lg:hidden mt-[-1rem] ml-[-1rem] w-[200vw] h-[200vh]"
-              />
-              
-              {/* Sidebar card coming from top/center */}
-              <motion.div
-                initial={{ opacity: 0, y: -20, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                className="absolute top-20 left-0 right-0 z-[200] md:hidden px-2"
-              >
-                <div className="bg-[var(--background)] border border-[var(--border-color)] rounded-[2rem] p-8 shadow-2xl flex flex-col gap-6">
-                  {navLinks.map((link) => (
+          {/* Desktop links */}
+          <div className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 lg:block">
+            <ul className="flex items-center gap-1 rounded-none border border-[var(--border-color)] bg-[var(--input-bg)]/80 p-1">
+              {NAV_LINKS.map((link) => {
+                const active = activeSection === link.id;
+                return (
+                  <li key={link.id}>
                     <Link
-                      key={link.name}
                       href={link.href}
-                      onClick={() => setIsMobileMenuOpen(false)}
                       className={cn(
-                        "text-lg font-medium transition-colors px-2",
-                        activeSection === link.name
-                          ? "text-[var(--accent)]"
-                          : "text-[var(--gray-light)]"
+                        "relative block px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] transition xl:px-4",
+                        active
+                          ? "text-black"
+                          : "text-[var(--gray-muted)] hover:text-[var(--foreground)]"
                       )}
                     >
+                      {active && (
+                        <motion.span
+                          layoutId="nav-active"
+                          className="absolute inset-0 -z-10 bg-[var(--accent)]"
+                          transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                        />
+                      )}
                       {link.name}
                     </Link>
-                  ))}
-                  <div className="h-px bg-[var(--border-color)] my-2" />
-                  <Link
-                    href="#contact"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center justify-center py-4 rounded-2xl border border-[var(--border-color)] text-[var(--foreground)] font-bold bg-[var(--foreground)]/5"
-                  >
-                    Contact Me
-                  </Link>
-                </div>
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
-      </nav>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+
+          {/* Actions */}
+          <div className="relative z-[60] flex items-center gap-2">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="flex h-9 w-9 items-center justify-center border border-[var(--border-color)] text-[var(--gray-light)] transition hover:border-[var(--accent)]/50 hover:text-[var(--accent)]"
+              aria-label="Toggle theme"
+            >
+              {mounted && theme === "light" ? <Moon size={15} /> : <Sun size={15} />}
+            </button>
+
+            <Link
+              href="#contact"
+              className={cn(
+                "hidden items-center gap-1.5 px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] transition sm:inline-flex",
+                activeSection === "contact"
+                  ? "border border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]"
+                  : "bg-[var(--accent)] text-black hover:brightness-110"
+              )}
+            >
+              Contact
+              <ArrowUpRight size={13} strokeWidth={2.5} />
+            </Link>
+
+            <button
+              type="button"
+              onClick={() => setIsMobileMenuOpen((v) => !v)}
+              className="flex h-9 w-9 items-center justify-center border border-[var(--border-color)] text-[var(--foreground)] transition hover:border-[var(--accent)]/50 hover:text-[var(--accent)] lg:hidden"
+              aria-label="Menu"
+              aria-expanded={isMobileMenuOpen}
+            >
+              {isMobileMenuOpen ? <X size={17} /> : <Menu size={17} />}
+            </button>
+          </div>
+        </nav>
+      </div>
+
+      {/* Mobile menu */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="fixed inset-0 z-[40] bg-black/65 backdrop-blur-sm lg:hidden"
+            />
+            <motion.div
+              initial={{ opacity: 0, y: -12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.22 }}
+              className="absolute inset-x-3 top-[72px] z-[50] border border-[var(--border-color)] bg-[var(--background)]/98 p-3 shadow-[0_24px_60px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:inset-x-4 lg:hidden"
+            >
+              <div className="flex flex-col gap-1">
+                {[...NAV_LINKS, { id: "contact", name: "Contact", href: "#contact" }].map(
+                  (link, i) => {
+                    const active = activeSection === link.id;
+                    return (
+                      <motion.div
+                        key={link.id}
+                        initial={{ opacity: 0, x: -8 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.04 }}
+                      >
+                        <Link
+                          href={link.href}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className={cn(
+                            "flex items-center justify-between px-3.5 py-3.5 text-[12px] font-semibold uppercase tracking-[0.14em] transition",
+                            active
+                              ? "bg-[var(--accent)] text-black"
+                              : "text-[var(--gray-light)] hover:bg-[var(--input-bg)] hover:text-[var(--foreground)]"
+                          )}
+                        >
+                          {link.name}
+                          <span
+                            className={cn(
+                              "h-1.5 w-1.5 rounded-full",
+                              active ? "bg-black" : "bg-[var(--border-color)]"
+                            )}
+                          />
+                        </Link>
+                      </motion.div>
+                    );
+                  }
+                )}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </header>
   );
 };

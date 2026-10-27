@@ -1,170 +1,186 @@
-/* eslint-disable react-hooks/immutability */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
-// components/sections/Contact.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Mail, Send } from "lucide-react";
+import { Mail, Send, MapPin, Phone, Clock } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import SectionHeader from "@/components/ui/SectionHeader";
+import SectionBackdrop from "@/components/ui/SectionBackdrop";
+import NeuralField from "@/components/charts/NeuralField";
+import { easeOut } from "@/lib/motion";
 
-const LinkedInIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
+const LinkedInIcon = ({ size = 16 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
     <rect width="4" height="12" x="2" y="9" />
     <circle cx="4" cy="4" r="2" />
   </svg>
 );
 
+const FALLBACK_CONTACT = {
+  email: "syedalibukharishah16@gmail.com",
+  linkedin_url: "https://www.linkedin.com/in/syedalieman/",
+  linkedin_name: "Syed Ali Eman",
+};
+
 const Contact = () => {
-  const [contactData, setContactData] = useState<any>(null);
-  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [contactData, setContactData] = useState<any>(FALLBACK_CONTACT);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
+  });
   const [status, setStatus] = useState("");
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchContact = async () => {
+      const { data } = await supabase.from("contact").select("*").single();
+      if (data) setContactData(data);
+    };
     fetchContact();
   }, []);
 
-  const fetchContact = async () => {
-    const { data } = await supabase.from("contact").select("*").single();
-    if (data) setContactData(data);
-    setLoading(false);
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus("sending");
-    const { error } = await supabase.from("messages").insert([formData]);
-    if (error) {
-      setStatus("error");
-      console.error(error);
-    } else {
+    const payload = {
+      name: formData.name,
+      email: formData.email,
+      message: formData.subject
+        ? `[${formData.subject}] ${formData.message}`
+        : formData.message,
+    };
+    const { error } = await supabase.from("messages").insert([payload]);
+    if (error) setStatus("error");
+    else {
       setStatus("success");
-      setFormData({ name: "", email: "", message: "" });
+      setFormData({ name: "", email: "", subject: "", message: "" });
       setTimeout(() => setStatus(""), 3000);
     }
   };
 
-  if (loading) return null;
+  const details = [
+    {
+      icon: Mail,
+      label: "Email",
+      value: contactData.email,
+      href: `mailto:${contactData.email}`,
+    },
+    {
+      icon: Phone,
+      label: "Phone",
+      value: "+92 329 6590026",
+      href: "tel:+923296590026",
+    },
+    {
+      icon: MapPin,
+      label: "Location",
+      value: "Lahore, Punjab, Pakistan",
+      href: null,
+    },
+    {
+      icon: LinkedInIcon,
+      label: "LinkedIn",
+      value: contactData.linkedin_name,
+      href: contactData.linkedin_url,
+    },
+    {
+      icon: Clock,
+      label: "Availability",
+      value: "Open to full-time & freelance",
+      href: null,
+    },
+  ];
 
   return (
-    <section
-      id="contact"
-      className="relative w-full pt-16 md:pt-24 lg:pt-32 pb-20 md:pb-28 lg:pb-32 bg-[var(--background)] flex flex-col items-center px-4 md:px-6 overflow-hidden"
-    >
-      <div className="text-center mb-12 md:mb-16 lg:mb-20 flex flex-col items-center relative z-10">
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className="text-4xl md:text-5xl lg:text-[64px] font-black tracking-tighter text-[var(--foreground)] leading-none uppercase"
-        >
-          Get In Touch
-        </motion.h2>
-
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.2, duration: 0.6 }}
-          className="text-xs md:text-[13px] font-bold text-[var(--accent)] tracking-[2px] mt-2 md:mt-3"
-        >
-          Lets <span className="text-[var(--foreground)]">work together</span>
-        </motion.p>
+    <section id="contact" className="section-shell">
+      <SectionBackdrop variant="waves" />
+      <div className="pointer-events-none absolute inset-0 opacity-25">
+        <NeuralField density="normal" />
       </div>
 
-      <div className="max-w-[1100px] w-full grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, x: -30 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="flex flex-col justify-center"
-        >
-          <h3 className="text-2xl md:text-3xl font-bold text-[var(--foreground)] mb-4 md:mb-6 tracking-tight">
-            Let&apos;s build something{" "}
-            <span className="text-[var(--accent)]">extraordinary</span>.
-          </h3>
-          <p className="text-[var(--gray-light)] text-base md:text-lg mb-8 md:mb-12 leading-relaxed max-w-md font-medium">
-            I&apos;m currently open to new opportunities and collaborations. Feel free to reach
-            out via email or connect with me on LinkedIn.
-          </p>
+      <div className="relative z-10 mx-auto max-w-[1100px]">
+        <SectionHeader
+          title="Get In Touch"
+          subtitle="Share the role, project, or interview brief — I usually reply within 24 hours."
+        />
 
-          <div className="space-y-5 md:space-y-6">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2, duration: 0.4 }}
-              className="flex items-center gap-4 md:gap-6 group cursor-default"
-            >
-              <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-[var(--input-bg)] border border-[var(--border-color)] flex items-center justify-center text-[var(--accent)] group-hover:bg-[var(--accent)] group-hover:text-black transition-all duration-500 shadow-[0_0_15px_rgba(255,140,0,0.1)]">
-                <Mail size={20} className="md:w-6 md:h-6" />
-              </div>
-              <div>
-                <p className="text-[9px] md:text-[10px] font-bold text-[var(--gray-muted)] uppercase tracking-widest mb-1">
-                  Email Me
-                </p>
-                <p className="text-[var(--foreground)] font-bold text-base md:text-lg break-all">
-                  {contactData.email}
-                </p>
-              </div>
-            </motion.div>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[0.92fr_1.08fr] lg:gap-8">
+          <motion.div
+            initial={{ opacity: 0, x: -14 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, ease: easeOut }}
+            className="panel p-5 md:p-6"
+          >
+            <h3 className="font-display text-2xl text-[var(--foreground)] md:text-[28px]">
+              Let&apos;s build something{" "}
+              <span className="text-[var(--accent)]">worth shipping</span>.
+            </h3>
+            <p className="mt-3 text-sm leading-relaxed text-[var(--gray-light)]">
+              Based in Lahore. Available for technical interviews, contract work, and
+              full-time product roles across web and Shopify.
+            </p>
 
-            <motion.a
-              href={contactData.linkedin_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3, duration: 0.4 }}
-              className="flex items-center gap-4 md:gap-6 group cursor-pointer"
-            >
-              <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-[var(--input-bg)] border border-[var(--border-color)] flex items-center justify-center text-[var(--accent)] group-hover:bg-[var(--accent)] group-hover:text-black transition-all duration-500 shadow-[0_0_15px_rgba(255,140,0,0.1)]">
-                <LinkedInIcon />
-              </div>
-              <div>
-                <p className="text-[9px] md:text-[10px] font-bold text-[var(--gray-muted)] uppercase tracking-widest mb-1">
-                  LinkedIn
-                </p>
-                <p className="text-[var(--foreground)] font-bold text-base md:text-lg group-hover:text-[var(--accent)] transition-colors">
-                  {contactData.linkedin_name}
-                </p>
-              </div>
-            </motion.a>
-          </div>
-        </motion.div>
+            <div className="mt-6 space-y-2.5">
+              {details.map((item) => {
+                const Icon = item.icon;
+                const inner = (
+                  <div className="flex items-start gap-3 border border-[var(--border-color)] bg-[var(--input-bg)] p-3 transition hover:border-[var(--accent)]/40">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center border border-[var(--border-color)] text-[var(--accent)]">
+                      <Icon size={16} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--gray-muted)]">
+                        {item.label}
+                      </p>
+                      <p className="break-words text-sm font-medium text-[var(--foreground)]">
+                        {item.value}
+                      </p>
+                    </div>
+                  </div>
+                );
 
-        <motion.div
-          initial={{ opacity: 0, x: 30 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="p-6 md:p-8 lg:p-10 rounded-2xl bg-[var(--card-bg)] border border-[var(--card-border)] relative overflow-hidden"
-        >
-          <form onSubmit={handleSubmit} className="space-y-5 md:space-y-6 relative z-10">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6">
+                return item.href ? (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    target={item.href.startsWith("http") ? "_blank" : undefined}
+                    rel="noopener noreferrer"
+                  >
+                    {inner}
+                  </a>
+                ) : (
+                  <div key={item.label}>{inner}</div>
+                );
+              })}
+            </div>
+          </motion.div>
+
+          <motion.form
+            onSubmit={handleSubmit}
+            initial={{ opacity: 0, x: 14 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, ease: easeOut }}
+            className="panel p-5 md:p-7"
+          >
+            <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
+              Send a message
+            </p>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-[var(--gray-muted)] uppercase tracking-widest ml-1">
-                  Name
+                <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--gray-muted)]">
+                  Full name
                 </label>
                 <input
                   type="text"
@@ -172,13 +188,13 @@ const Contact = () => {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  placeholder="Your Name"
-                  className="w-full bg-[var(--input-bg)] border border-[var(--border-color)] rounded-xl px-4 md:px-5 py-3 md:py-4 text-[var(--foreground)] outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)] transition-all text-sm shadow-none"
+                  placeholder="Your name"
+                  className="w-full border border-[var(--border-color)] bg-[var(--input-bg)] px-4 py-3 text-sm outline-none transition focus:border-[var(--accent)]"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-[var(--gray-muted)] uppercase tracking-widest ml-1">
-                  Email
+                <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--gray-muted)]">
+                  Work email
                 </label>
                 <input
                   type="email"
@@ -186,47 +202,64 @@ const Contact = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  placeholder="Email Address"
-                  className="w-full bg-[var(--input-bg)] border border-[var(--border-color)] rounded-xl px-4 md:px-5 py-3 md:py-4 text-[var(--foreground)] outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)] transition-all text-sm shadow-none"
+                  placeholder="you@company.com"
+                  className="w-full border border-[var(--border-color)] bg-[var(--input-bg)] px-4 py-3 text-sm outline-none transition focus:border-[var(--accent)]"
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold text-[var(--gray-muted)] uppercase tracking-widest ml-1">
+            <div className="mt-4 space-y-2">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--gray-muted)]">
+                Subject
+              </label>
+              <input
+                type="text"
+                name="subject"
+                value={formData.subject}
+                onChange={handleChange}
+                placeholder="Interview / Freelance / Collaboration"
+                className="w-full border border-[var(--border-color)] bg-[var(--input-bg)] px-4 py-3 text-sm outline-none transition focus:border-[var(--accent)]"
+              />
+            </div>
+
+            <div className="mt-4 space-y-2">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--gray-muted)]">
                 Message
               </label>
               <textarea
-                rows={5}
+                rows={6}
                 name="message"
                 value={formData.message}
                 onChange={handleChange}
                 required
-                placeholder="How can I help you?"
-                className="w-full bg-[var(--input-bg)] border border-[var(--border-color)] rounded-xl px-4 md:px-5 py-3 md:py-4 text-[var(--foreground)] outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)] transition-all resize-none text-sm shadow-none"
+                placeholder="Role details, timeline, stack, or interview slot…"
+                className="w-full resize-none border border-[var(--border-color)] bg-[var(--input-bg)] px-4 py-3 text-sm outline-none transition focus:border-[var(--accent)]"
               />
             </div>
 
             <motion.button
-              whileHover={{ scale: 1.02 }}
+              whileHover={{ y: -1 }}
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={status === "sending"}
-              className="w-full py-4 md:py-5 bg-[var(--accent)] text-black font-black uppercase tracking-[3px] text-xs rounded-xl flex items-center justify-center gap-2 md:gap-3 hover:brightness-110 transition-all shadow-lg shadow-[var(--accent)]/20 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="mt-6 flex w-full items-center justify-center gap-2 bg-[var(--accent)] py-4 text-xs font-black uppercase tracking-[0.2em] text-black transition hover:brightness-110 disabled:opacity-50"
             >
-              {status === "sending" ? "Sending..." : "Send Message"} <Send size={16} className="md:w-[18px] md:h-[18px]" />
+              {status === "sending" ? "Sending..." : "Send Message"} <Send size={15} />
             </motion.button>
+
             {status === "success" && (
-              <p className="text-green-500 text-xs text-center">Message sent successfully!</p>
+              <p className="mt-3 text-center text-xs text-emerald-500">
+                Message sent successfully. I&apos;ll get back soon.
+              </p>
             )}
             {status === "error" && (
-              <p className="text-red-500 text-xs text-center">Failed to send. Please try again.</p>
+              <p className="mt-3 text-center text-xs text-red-500">
+                Failed to send. Email me directly instead.
+              </p>
             )}
-          </form>
-        </motion.div>
+          </motion.form>
+        </div>
       </div>
-
-      <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-[var(--accent)]/5 blur-[120px] rounded-full -z-10" />
     </section>
   );
 };

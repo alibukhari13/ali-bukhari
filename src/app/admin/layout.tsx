@@ -1,5 +1,9 @@
-// src/app/admin/layout.tsx
-import { ThemeProvider } from "@/components/theme-provider";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Admin | Syed Ali Eman",
+  robots: { index: false, follow: false },
+};
 
 export default function AdminLayout({
   children,
@@ -7,13 +11,8 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="dark"
-      enableSystem={false}
-      disableTransitionOnChange
-    >
-      <div className="min-h-screen bg-[var(--background)]">{children}</div>
-    </ThemeProvider>
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+      {children}
+    </div>
   );
 }
