@@ -14,6 +14,8 @@ import {
   Mail,
   Loader2,
   Lock,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
@@ -163,6 +165,76 @@ export default function AdminPanel() {
   const getNextOrderIndex = (items: any[]) =>
     items.reduce((max, item) => Math.max(max, item.order_index || 0), 0) + 1;
 
+  const sortByOrder = (items: any[]) =>
+    [...items].sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
+
+  const withSequentialOrder = (items: any[]) =>
+    items.map((item, index) => ({ ...item, order_index: index + 1 }));
+
+  const persistOrder = async (table: "services" | "projects", items: any[]) => {
+    const results = await Promise.all(
+      items.map((item) =>
+        supabase.from(table).update({ order_index: item.order_index }).eq("id", item.id)
+      )
+    );
+    return results.every((r) => !r.error);
+  };
+
+  /** Move item to 1-based position and renumber 1..N in DB + state */
+  const moveToPosition = async (
+    table: "services" | "projects",
+    items: any[],
+    setItems: (next: any[]) => void,
+    id: number,
+    newPosition: number,
+    options?: { silent?: boolean }
+  ) => {
+    const sorted = sortByOrder(items);
+    const from = sorted.findIndex((item) => item.id === id);
+    if (from < 0) return false;
+    const to = Math.max(0, Math.min(sorted.length - 1, Math.round(newPosition) - 1));
+    if (from === to) {
+      // Still normalize indexes if gaps/duplicates exist
+      const normalized = withSequentialOrder(sorted);
+      const needsWrite = normalized.some(
+        (item, i) => item.order_index !== sorted[i].order_index
+      );
+      if (needsWrite) {
+        setItems(normalized);
+        setSaving(true);
+        const ok = await persistOrder(table, normalized);
+        setSaving(false);
+        if (!options?.silent) notify(ok ? "Position updated" : "Failed to update position");
+        return ok;
+      }
+      return true;
+    }
+
+    const next = [...sorted];
+    const [item] = next.splice(from, 1);
+    next.splice(to, 0, item);
+    const reindexed = withSequentialOrder(next);
+    setItems(reindexed);
+    setSaving(true);
+    const ok = await persistOrder(table, reindexed);
+    if (!options?.silent) notify(ok ? "Position updated" : "Failed to update position");
+    setSaving(false);
+    return ok;
+  };
+
+  const moveByStep = async (
+    table: "services" | "projects",
+    items: any[],
+    setItems: (next: any[]) => void,
+    id: number,
+    direction: -1 | 1
+  ) => {
+    const sorted = sortByOrder(items);
+    const index = sorted.findIndex((item) => item.id === id);
+    if (index < 0) return;
+    await moveToPosition(table, items, setItems, id, index + 1 + direction);
+  };
+
   const updateHero = async () => {
     setSaving(true);
     const { error } = await supabase.from("hero").update(hero).eq("id", hero.id);
@@ -221,36 +293,59 @@ export default function AdminPanel() {
     if (editingService) {
       const { error } = await supabase
         .from("services")
-        .update({ title, description, icon_name, order_index })
+        .update({ title, description, icon_name })
         .eq("id", editingService.id);
-      if (!error) {
-        setServices(
-          services.map((s) =>
-            s.id === editingService.id
-              ? { ...s, title, description, icon_name, order_index }
-              : s
-          )
-        );
+      if (error) {
+        notify(error.message);
+        setSaving(false);
+        return;
       }
-      notify(error ? error.message : "Service updated");
+      const updated = services.map((s) =>
+        s.id === editingService.id ? { ...s, title, description, icon_name } : s
+      );
+      setServices(updated);
+      setShowServiceModal(false);
+      setSaving(false);
+      if (order_index !== editingService.order_index) {
+        await moveToPosition("services", updated, setServices, editingService.id, order_index, {
+          silent: true,
+        });
+      }
+      notify("Service updated");
     } else {
+      const insertAt = Math.max(1, Math.min(services.length + 1, order_index || services.length + 1));
       const { data, error } = await supabase
         .from("services")
-        .insert([{ title, description, icon_name, order_index }])
+        .insert([{ title, description, icon_name, order_index: insertAt }])
         .select();
-      if (!error && data?.[0]) setServices([...services, data[0]]);
-      notify(error ? error.message : "Service added");
+      if (error || !data?.[0]) {
+        notify(error?.message || "Failed to add service");
+        setSaving(false);
+        return;
+      }
+      const withNew = [...services, data[0]];
+      setServices(withNew);
+      setShowServiceModal(false);
+      setSaving(false);
+      await moveToPosition("services", withNew, setServices, data[0].id, insertAt, {
+        silent: true,
+      });
+      notify("Service added");
     }
-    setSaving(false);
-    setShowServiceModal(false);
   };
 
   const deleteService = async (id: number) => {
     if (!confirm("Delete this service?")) return;
     setSaving(true);
     const { error } = await supabase.from("services").delete().eq("id", id);
-    if (!error) setServices(services.filter((s) => s.id !== id));
-    notify(error ? error.message : "Service deleted");
+    if (!error) {
+      const remaining = withSequentialOrder(sortByOrder(services.filter((s) => s.id !== id)));
+      setServices(remaining);
+      await persistOrder("services", remaining);
+      notify("Service deleted");
+    } else {
+      notify(error.message);
+    }
     setSaving(false);
   };
 
@@ -314,30 +409,38 @@ export default function AdminPanel() {
           image_url,
           tags,
           link,
-          order_index,
         })
         .eq("id", editingProject.id);
-      if (!error) {
-        setProjects(
-          projects.map((p) =>
-            p.id === editingProject.id
-              ? {
-                  ...p,
-                  title,
-                  category,
-                  description,
-                  full_detail,
-                  image_url,
-                  tags,
-                  link,
-                  order_index,
-                }
-              : p
-          )
-        );
+      if (error) {
+        notify(error.message);
+        setSaving(false);
+        return;
       }
-      notify(error ? error.message : "Project updated");
+      const updated = projects.map((p) =>
+        p.id === editingProject.id
+          ? {
+              ...p,
+              title,
+              category,
+              description,
+              full_detail,
+              image_url,
+              tags,
+              link,
+            }
+          : p
+      );
+      setProjects(updated);
+      setShowProjectModal(false);
+      setSaving(false);
+      if (order_index !== editingProject.order_index) {
+        await moveToPosition("projects", updated, setProjects, editingProject.id, order_index, {
+          silent: true,
+        });
+      }
+      notify("Project updated");
     } else {
+      const insertAt = Math.max(1, Math.min(projects.length + 1, order_index || projects.length + 1));
       const { data, error } = await supabase
         .from("projects")
         .insert([
@@ -349,23 +452,38 @@ export default function AdminPanel() {
             image_url,
             tags,
             link,
-            order_index,
+            order_index: insertAt,
           },
         ])
         .select();
-      if (!error && data?.[0]) setProjects([...projects, data[0]]);
-      notify(error ? error.message : "Project added");
+      if (error || !data?.[0]) {
+        notify(error?.message || "Failed to add project");
+        setSaving(false);
+        return;
+      }
+      const withNew = [...projects, data[0]];
+      setProjects(withNew);
+      setShowProjectModal(false);
+      setSaving(false);
+      await moveToPosition("projects", withNew, setProjects, data[0].id, insertAt, {
+        silent: true,
+      });
+      notify("Project added");
     }
-    setSaving(false);
-    setShowProjectModal(false);
   };
 
   const deleteProject = async (id: number) => {
     if (!confirm("Delete this project?")) return;
     setSaving(true);
     const { error } = await supabase.from("projects").delete().eq("id", id);
-    if (!error) setProjects(projects.filter((p) => p.id !== id));
-    notify(error ? error.message : "Project deleted");
+    if (!error) {
+      const remaining = withSequentialOrder(sortByOrder(projects.filter((p) => p.id !== id)));
+      setProjects(remaining);
+      await persistOrder("projects", remaining);
+      notify("Project deleted");
+    } else {
+      notify(error.message);
+    }
     setSaving(false);
   };
 
@@ -610,25 +728,87 @@ export default function AdminPanel() {
 
         {activeTab === "services" && (
           <div className="space-y-5">
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="font-display text-xl uppercase text-[var(--foreground)]">Services</h2>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 className="font-display text-xl uppercase text-[var(--foreground)]">Services</h2>
+                <p className="mt-1 text-xs text-[var(--gray-muted)]">
+                  Position #1 shows first on the website. Use arrows or the number dropdown.
+                </p>
+              </div>
               <button type="button" onClick={openAddService} className={btnPrimary}>
                 <Plus size={14} /> Add
               </button>
             </div>
             <div className="grid gap-3">
-              {services.map((service) => (
-                <div key={service.id} className={`${panelClass} flex items-start justify-between gap-4`}>
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--accent)]">
-                      #{service.order_index} · {service.icon_name}
-                    </p>
-                    <h3 className="mt-1 font-display text-lg text-[var(--foreground)]">
-                      {service.title}
-                    </h3>
-                    <p className="mt-1 text-sm text-[var(--gray-light)]">{service.description}</p>
+              {sortByOrder(services).map((service, index) => (
+                <div
+                  key={service.id}
+                  className={`${panelClass} flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between`}
+                >
+                  <div className="flex min-w-0 gap-3">
+                    <div className="flex shrink-0 flex-col gap-1">
+                      <button
+                        type="button"
+                        disabled={saving || index === 0}
+                        onClick={() =>
+                          moveByStep("services", services, setServices, service.id, -1)
+                        }
+                        className="inline-flex h-8 w-8 items-center justify-center border border-[var(--border-color)] text-[var(--foreground)] transition hover:border-[var(--accent)] disabled:opacity-30"
+                        aria-label="Move up"
+                      >
+                        <ChevronUp size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        disabled={saving || index === services.length - 1}
+                        onClick={() =>
+                          moveByStep("services", services, setServices, service.id, 1)
+                        }
+                        className="inline-flex h-8 w-8 items-center justify-center border border-[var(--border-color)] text-[var(--foreground)] transition hover:border-[var(--accent)] disabled:opacity-30"
+                        aria-label="Move down"
+                      >
+                        <ChevronDown size={14} />
+                      </button>
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="inline-flex h-7 min-w-[2rem] items-center justify-center bg-[var(--accent)] px-2 text-[11px] font-bold text-black">
+                          #{service.order_index}
+                        </span>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--gray-muted)]">
+                          {service.icon_name}
+                        </p>
+                      </div>
+                      <h3 className="mt-1 font-display text-lg text-[var(--foreground)]">
+                        {service.title}
+                      </h3>
+                      <p className="mt-1 text-sm text-[var(--gray-light)]">{service.description}</p>
+                    </div>
                   </div>
-                  <div className="flex shrink-0 gap-2">
+                  <div className="flex shrink-0 flex-wrap items-center gap-2">
+                    <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-[var(--gray-muted)]">
+                      Pos
+                      <select
+                        className="border border-[var(--border-color)] bg-[var(--input-bg)] px-2 py-2 text-sm text-[var(--foreground)] outline-none focus:border-[var(--accent)]"
+                        value={service.order_index}
+                        disabled={saving}
+                        onChange={(e) =>
+                          moveToPosition(
+                            "services",
+                            services,
+                            setServices,
+                            service.id,
+                            parseInt(e.target.value, 10)
+                          )
+                        }
+                      >
+                        {sortByOrder(services).map((_, i) => (
+                          <option key={i + 1} value={i + 1}>
+                            {i + 1}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
                     <button type="button" onClick={() => openEditService(service)} className={btnGhost}>
                       <Pencil size={13} />
                     </button>
@@ -648,30 +828,92 @@ export default function AdminPanel() {
 
         {activeTab === "projects" && (
           <div className="space-y-5">
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="font-display text-xl uppercase text-[var(--foreground)]">Projects</h2>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 className="font-display text-xl uppercase text-[var(--foreground)]">Projects</h2>
+                <p className="mt-1 text-xs text-[var(--gray-muted)]">
+                  Position #1 shows first on the website. Use arrows or the number dropdown.
+                </p>
+              </div>
               <button type="button" onClick={openAddProject} className={btnPrimary}>
                 <Plus size={14} /> Add
               </button>
             </div>
             <div className="grid gap-3">
-              {projects.map((project) => (
-                <div key={project.id} className={`${panelClass} flex items-start justify-between gap-4`}>
-                  <div className="min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--accent)]">
-                      #{project.order_index} · {project.category}
-                    </p>
-                    <h3 className="mt-1 font-display text-lg text-[var(--foreground)]">
-                      {project.title}
-                    </h3>
-                    <p className="mt-1 truncate text-sm text-[var(--gray-muted)]">{project.link}</p>
-                    {(project.tags || []).length > 0 && (
-                      <p className="mt-2 text-xs text-[var(--gray-light)]">
-                        {(project.tags || []).join(" · ")}
-                      </p>
-                    )}
+              {sortByOrder(projects).map((project, index) => (
+                <div
+                  key={project.id}
+                  className={`${panelClass} flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between`}
+                >
+                  <div className="flex min-w-0 gap-3">
+                    <div className="flex shrink-0 flex-col gap-1">
+                      <button
+                        type="button"
+                        disabled={saving || index === 0}
+                        onClick={() =>
+                          moveByStep("projects", projects, setProjects, project.id, -1)
+                        }
+                        className="inline-flex h-8 w-8 items-center justify-center border border-[var(--border-color)] text-[var(--foreground)] transition hover:border-[var(--accent)] disabled:opacity-30"
+                        aria-label="Move up"
+                      >
+                        <ChevronUp size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        disabled={saving || index === projects.length - 1}
+                        onClick={() =>
+                          moveByStep("projects", projects, setProjects, project.id, 1)
+                        }
+                        className="inline-flex h-8 w-8 items-center justify-center border border-[var(--border-color)] text-[var(--foreground)] transition hover:border-[var(--accent)] disabled:opacity-30"
+                        aria-label="Move down"
+                      >
+                        <ChevronDown size={14} />
+                      </button>
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="inline-flex h-7 min-w-[2rem] items-center justify-center bg-[var(--accent)] px-2 text-[11px] font-bold text-black">
+                          #{project.order_index}
+                        </span>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--gray-muted)]">
+                          {project.category}
+                        </p>
+                      </div>
+                      <h3 className="mt-1 font-display text-lg text-[var(--foreground)]">
+                        {project.title}
+                      </h3>
+                      <p className="mt-1 truncate text-sm text-[var(--gray-muted)]">{project.link}</p>
+                      {(project.tags || []).length > 0 && (
+                        <p className="mt-2 text-xs text-[var(--gray-light)]">
+                          {(project.tags || []).join(" · ")}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex shrink-0 gap-2">
+                  <div className="flex shrink-0 flex-wrap items-center gap-2">
+                    <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-[var(--gray-muted)]">
+                      Pos
+                      <select
+                        className="border border-[var(--border-color)] bg-[var(--input-bg)] px-2 py-2 text-sm text-[var(--foreground)] outline-none focus:border-[var(--accent)]"
+                        value={project.order_index}
+                        disabled={saving}
+                        onChange={(e) =>
+                          moveToPosition(
+                            "projects",
+                            projects,
+                            setProjects,
+                            project.id,
+                            parseInt(e.target.value, 10)
+                          )
+                        }
+                      >
+                        {sortByOrder(projects).map((_, i) => (
+                          <option key={i + 1} value={i + 1}>
+                            {i + 1}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
                     <button type="button" onClick={() => openEditProject(project)} className={btnGhost}>
                       <Pencil size={13} />
                     </button>
@@ -856,18 +1098,31 @@ export default function AdminPanel() {
                 value={serviceForm.icon_name}
                 onChange={(e) => setServiceForm({ ...serviceForm, icon_name: e.target.value })}
               />
-              <input
-                className={inputClass}
-                type="number"
-                placeholder="Order"
-                value={serviceForm.order_index}
-                onChange={(e) =>
-                  setServiceForm({
-                    ...serviceForm,
-                    order_index: parseInt(e.target.value) || 0,
-                  })
-                }
-              />
+              <div>
+                <label className={labelClass}>Website position</label>
+                <select
+                  className={inputClass}
+                  value={serviceForm.order_index}
+                  onChange={(e) =>
+                    setServiceForm({
+                      ...serviceForm,
+                      order_index: parseInt(e.target.value, 10) || 1,
+                    })
+                  }
+                >
+                  {Array.from(
+                    { length: editingService ? services.length : services.length + 1 },
+                    (_, i) => i + 1
+                  ).map((n) => (
+                    <option key={n} value={n}>
+                      #{n} {n === 1 ? "(first on site)" : n === (editingService ? services.length : services.length + 1) ? "(last)" : ""}
+                    </option>
+                  ))}
+                </select>
+                <p className="mt-1.5 text-xs text-[var(--gray-muted)]">
+                  Other services shift automatically when you change this.
+                </p>
+              </div>
             </div>
             <div className="mt-5 flex justify-end gap-2">
               <button type="button" onClick={() => setShowServiceModal(false)} className={btnGhost}>
@@ -932,18 +1187,36 @@ export default function AdminPanel() {
                 value={projectForm.link}
                 onChange={(e) => setProjectForm({ ...projectForm, link: e.target.value })}
               />
-              <input
-                className={inputClass}
-                type="number"
-                placeholder="Order"
-                value={projectForm.order_index}
-                onChange={(e) =>
-                  setProjectForm({
-                    ...projectForm,
-                    order_index: parseInt(e.target.value) || 0,
-                  })
-                }
-              />
+              <div>
+                <label className={labelClass}>Website position</label>
+                <select
+                  className={inputClass}
+                  value={projectForm.order_index}
+                  onChange={(e) =>
+                    setProjectForm({
+                      ...projectForm,
+                      order_index: parseInt(e.target.value, 10) || 1,
+                    })
+                  }
+                >
+                  {Array.from(
+                    { length: editingProject ? projects.length : projects.length + 1 },
+                    (_, i) => i + 1
+                  ).map((n) => (
+                    <option key={n} value={n}>
+                      #{n}{" "}
+                      {n === 1
+                        ? "(first on site)"
+                        : n === (editingProject ? projects.length : projects.length + 1)
+                          ? "(last)"
+                          : ""}
+                    </option>
+                  ))}
+                </select>
+                <p className="mt-1.5 text-xs text-[var(--gray-muted)]">
+                  Other projects shift automatically when you change this.
+                </p>
+              </div>
             </div>
             <div className="mt-5 flex justify-end gap-2">
               <button type="button" onClick={() => setShowProjectModal(false)} className={btnGhost}>
