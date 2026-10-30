@@ -10,8 +10,6 @@ import ProjectModal from "@/components/ui/ProjectModal";
 import { PROJECTS } from "@/constants/projects";
 import { easeOut } from "@/lib/motion";
 import Reveal from "@/components/ui/Reveal";
-import ProjectMixChart from "@/components/charts/ProjectMixChart";
-import MotionOrnament from "@/components/ui/MotionOrnament";
 
 const FALLBACK_PROJECTS = PROJECTS.map((project, index) => ({
   ...project,
@@ -34,7 +32,6 @@ export default function Projects() {
 
   return (
     <section id="projects" className="section-shell projects-editorial isolate">
-      <MotionOrnament variant="arcs" className="-left-20 bottom-8 h-72 w-72 sm:h-96 sm:w-96" />
       <div className="relative z-10 mx-auto max-w-[1240px]">
         <Reveal className="mb-10 flex flex-col justify-between gap-5 sm:mb-12 md:flex-row md:items-end">
           <div className="max-w-[650px]">
@@ -42,7 +39,7 @@ export default function Projects() {
             <h2 className="font-display text-4xl font-bold leading-[.98] tracking-[-.055em] text-[var(--foreground)] sm:text-5xl lg:text-6xl">Projects with purpose<span className="text-[var(--accent)]">.</span></h2>
             <p className="mt-4 max-w-xl text-base leading-relaxed text-[var(--gray-light)]">A selection of products and digital experiences, built to make everyday tasks feel simpler.</p>
           </div>
-          <ProjectMixChart projects={projects} />
+          <p className="text-sm font-medium text-[var(--gray-muted)] md:pb-1">Web products <span className="mx-2 text-[var(--accent)]">·</span> Commerce <span className="mx-2 text-[var(--accent)]">·</span> Integrations</p>
         </Reveal>
 
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6 lg:grid-cols-3">

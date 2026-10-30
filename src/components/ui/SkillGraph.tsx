@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { MonitorSmartphone, Waypoints } from "lucide-react";
 import { SKILLS } from "@/constants/skills";
 import BrandMark from "@/components/ui/BrandMark";
-import NetworkGraph from "@/components/charts/NetworkGraph";
 import { easeOut } from "@/lib/motion";
 
 const groups = [
@@ -14,7 +13,7 @@ const groups = [
 
 export default function SkillGraph() {
   return (
-    <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-3" aria-label="Technologies and areas of focus">
+    <div className="mt-6 grid gap-3 sm:grid-cols-2" aria-label="Technologies and areas of focus">
       {groups.map((group, index) => (
         <motion.section
           key={group.title}
@@ -45,20 +44,6 @@ export default function SkillGraph() {
           </ul>
         </motion.section>
       ))}
-      <motion.section
-        initial={{ opacity: 0, y: 14 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-20px" }}
-        transition={{ duration: 0.5, delay: 0.12, ease: easeOut }}
-        className="rounded-xl border border-[var(--border-color)] bg-[var(--surface)] p-4 sm:col-span-2 xl:col-span-1"
-        aria-label="Animated technology connections"
-      >
-        <div className="mb-1">
-          <h4 className="text-sm font-semibold text-[var(--foreground)]">Stack connections</h4>
-          <p className="mt-1 text-xs text-[var(--gray-muted)]">How the tools fit together</p>
-        </div>
-        <NetworkGraph className="mx-auto mt-1 max-w-[420px]" />
-      </motion.section>
     </div>
   );
 }

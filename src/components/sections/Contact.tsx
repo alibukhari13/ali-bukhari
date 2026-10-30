@@ -8,7 +8,6 @@ import { FaLinkedinIn } from "react-icons/fa6";
 import { supabase } from "@/lib/supabase";
 import { easeOut } from "@/lib/motion";
 import Reveal from "@/components/ui/Reveal";
-import MotionOrnament from "@/components/ui/MotionOrnament";
 
 const FALLBACK_CONTACT = {
   email: "syedalibukharishah16@gmail.com",
@@ -61,7 +60,6 @@ const Contact = () => {
 
   return (
     <section id="contact" className="section-shell isolate">
-      <MotionOrnament variant="orbit" className="-left-20 top-12 h-64 w-64 sm:h-80 sm:w-80" />
       <div className="relative z-10 mx-auto max-w-[1240px]">
         <Reveal className="mb-10 grid gap-5 md:mb-14 md:grid-cols-[.9fr_1.1fr] md:items-end">
           <div><p className="mb-3 text-xs font-semibold uppercase tracking-[.18em] text-[var(--accent)]">Have something in mind?</p><h2 className="font-display text-4xl font-bold leading-[1] tracking-[-.055em] text-[var(--foreground)] sm:text-5xl">Let&apos;s make it<br/>work beautifully<span className="text-[var(--accent)]">.</span></h2></div>

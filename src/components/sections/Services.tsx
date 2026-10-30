@@ -9,7 +9,6 @@ import { supabase } from "@/lib/supabase";
 import { SERVICES, SERVICE_ICON_NAMES } from "@/constants/services";
 import { easeOut } from "@/lib/motion";
 import Reveal from "@/components/ui/Reveal";
-import MotionOrnament from "@/components/ui/MotionOrnament";
 
 const fallback = SERVICES.map((service, index) => ({ id: index, title: service.title, description: service.description, icon_name: SERVICE_ICON_NAMES[index] }));
 const steps = ["Understand the problem", "Design for real people", "Build, test & refine"];
@@ -20,7 +19,6 @@ export default function Services() {
 
   return (
     <section id="services" className="section-shell services-editorial isolate">
-      <MotionOrnament variant="wave" className="-right-20 top-16 h-40 w-[28rem] sm:h-52" />
       <div className="relative z-10 mx-auto max-w-[1240px]">
         <Reveal className="mb-10 flex flex-col justify-between gap-5 md:mb-14 md:flex-row md:items-end"><div className="max-w-[650px]"><p className="mb-3 text-xs font-semibold uppercase tracking-[.18em] text-[var(--accent)]">How I can help</p><h2 className="font-display text-4xl font-bold leading-[1] tracking-[-.055em] text-[var(--foreground)] sm:text-5xl">From first sketch<br className="hidden sm:block"/> to <span className="text-[var(--accent)]">the real thing.</span></h2></div><p className="max-w-md text-base leading-relaxed text-[var(--gray-light)]">A practical mix of design-minded frontend work, commerce expertise and dependable full-stack delivery.</p></Reveal>
         <div className="mb-7 grid overflow-hidden rounded-[1.5rem] border border-[var(--border-color)] bg-[var(--surface)] sm:grid-cols-3">{steps.map((step, index) => <motion.div key={step} initial={{ opacity: 0, x: -10 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: index * .08 }} className="flex items-center gap-3 border-b border-[var(--border-color)] p-4 last:border-b-0 sm:border-b-0 sm:border-r sm:last:border-r-0 sm:p-5"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-xs font-semibold text-[var(--accent)]">0{index + 1}</span><span className="text-sm font-medium text-[var(--foreground)]">{step}</span><Check size={14} className="ml-auto text-[var(--accent)]"/></motion.div>)}</div>

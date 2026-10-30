@@ -54,8 +54,6 @@ export default function Footer() {
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--border-color)] to-transparent" />
       <div className="relative z-10 mx-auto max-w-[1240px]">
         <motion.section initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-40px" }} transition={{ duration: .5, ease: easeOut }} className="footer-cta relative isolate overflow-hidden rounded-[2rem] bg-[#18281d] px-6 py-8 text-white sm:px-10 sm:py-10 lg:px-14 lg:py-12">
-          <motion.div animate={{ x: [0, -10, 0], y: [0, 8, 0] }} transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }} className="footer-cta-glow pointer-events-none absolute -right-20 -top-28 h-[420px] w-[420px] rounded-full border border-white/[.07]" />
-          <motion.div animate={{ x: [0, 9, 0], y: [0, -7, 0] }} transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }} className="pointer-events-none absolute -right-4 -top-12 h-[320px] w-[320px] rounded-full border border-white/[.06]" />
           <div className="relative z-10 grid items-end gap-8 lg:grid-cols-[1fr_auto] lg:gap-12">
             <div className="max-w-[700px]">
               <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[.05] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[.14em] text-white/70"><span className="h-1.5 w-1.5 rounded-full bg-[#a8dba0]"/> Open to good projects</p>
@@ -98,6 +96,7 @@ export default function Footer() {
           <p>{footerData.copyright_text}</p>
           <div className="flex items-center gap-5"><span>Designed & built by {footerData.designed_by}</span><button type="button" onClick={backToTop} className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-color)] px-3 py-2 text-[var(--gray-light)] transition hover:border-[var(--accent)] hover:text-[var(--accent)]">Back to top <ArrowUp size={13}/></button></div>
         </div>
+
       </div>
     </footer>
   );

@@ -6,7 +6,6 @@ import { supabase } from "@/lib/supabase";
 import { FALLBACK_ABOUT } from "@/constants/fallback";
 import SkillGraph from "@/components/ui/SkillGraph";
 import Reveal from "@/components/ui/Reveal";
-import MotionOrnament from "@/components/ui/MotionOrnament";
 
 type AboutContent = typeof FALLBACK_ABOUT;
 
@@ -33,13 +32,12 @@ export default function About() {
 
   return (
     <section id="about" className="section-shell isolate">
-      <MotionOrnament variant="dots" className="-right-10 top-8 h-56 w-56 sm:h-72 sm:w-72" />
       <div className="relative z-10 mx-auto max-w-[1100px]">
         <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.78fr)] lg:gap-12">
           <Reveal>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">A little about me</p>
             <h2 className="mt-4 max-w-xl font-display text-3xl leading-tight text-[var(--foreground)] sm:text-4xl lg:text-5xl">
-              I build useful web experiences, from first idea to launch.
+              Good digital work starts with understanding people.
             </h2>
             <p className="mt-6 max-w-2xl text-base leading-7 text-[var(--gray-light)] sm:text-lg sm:leading-8">{intro}</p>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--gray-muted)] sm:text-base">{workStory}</p>
@@ -61,13 +59,13 @@ export default function About() {
           </Reveal>
         </div>
 
-        <Reveal delay={0.05} className="mt-12 rounded-2xl border border-[var(--border-color)] bg-[var(--input-bg)] p-5 sm:mt-14 sm:p-7">
+        <Reveal delay={0.05} className="mt-12 border-t border-[var(--border-color)] pt-8 sm:mt-14 sm:pt-10">
           <div className="flex flex-wrap items-end justify-between gap-3 border-b border-[var(--border-color)] pb-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">Tools I use every day</p>
               <h3 className="mt-1 font-display text-2xl text-[var(--foreground)] sm:text-3xl">My toolkit</h3>
             </div>
-            <p className="max-w-sm text-sm leading-6 text-[var(--gray-muted)]">The technologies behind my web apps, storefronts, and integrations.</p>
+            <p className="max-w-sm text-sm leading-6 text-[var(--gray-muted)]">A practical stack for responsive products, storefronts, and integrations.</p>
           </div>
           <SkillGraph />
         </Reveal>

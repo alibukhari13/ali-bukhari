@@ -29,15 +29,15 @@ export default function Hero() {
       <div aria-hidden="true" className="absolute inset-x-0 top-0 -z-10 h-px bg-gradient-to-r from-transparent via-[var(--accent)]/35 to-transparent" />
       <motion.div
         aria-hidden="true"
-        animate={{ x: [0, -12, 0], y: [0, 15, 0] }}
+        animate={{ x: [0, -8, 0], y: [0, 9, 0] }}
         transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
-        className="pointer-events-none absolute -right-28 top-[14%] z-0 h-[min(72vw,42rem)] w-[min(72vw,42rem)] rounded-full border border-[var(--accent)]/[.09]"
+        className="pointer-events-none absolute -right-32 top-[18%] z-0 h-[min(62vw,38rem)] w-[min(62vw,38rem)] rounded-full border border-[var(--accent)]/[.06]"
       />
       <motion.div
         aria-hidden="true"
-        animate={{ x: [0, 10, 0], y: [0, -12, 0] }}
+        animate={{ x: [0, 7, 0], y: [0, -7, 0] }}
         transition={{ duration: 13, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
-        className="pointer-events-none absolute right-[-1rem] top-[25%] z-0 h-[min(54vw,32rem)] w-[min(54vw,32rem)] rounded-full border border-[var(--accent)]/[.07]"
+        className="pointer-events-none absolute right-[-2rem] top-[29%] z-0 h-[min(44vw,27rem)] w-[min(44vw,27rem)] rounded-full border border-[var(--accent)]/[.05]"
       />
 
       <div className="relative z-10 mx-auto grid w-full max-w-[1240px] items-center gap-8 sm:gap-10 lg:grid-cols-[1.08fr_.92fr] lg:gap-12 xl:gap-20">
@@ -51,12 +51,12 @@ export default function Hero() {
           </motion.div>
 
           <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .05, duration: .45 }} className="text-[11px] font-bold uppercase tracking-[.22em] text-[var(--accent)] sm:text-xs">{subtitle}</motion.p>
-          <motion.h1 initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .1, duration: .6, ease: easeOut }} className="mt-4 max-w-[800px] font-display text-[clamp(3.25rem,8.2vw,7.15rem)] font-bold uppercase leading-[.86] tracking-[-.075em] text-[var(--foreground)]">
+          <motion.h1 initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .1, duration: .6, ease: easeOut }} className="mt-4 max-w-[800px] font-display text-[clamp(3.1rem,7vw,6.15rem)] font-bold leading-[.92] tracking-[-.065em] text-[var(--foreground)]">
             {(() => {
-              const words = title.trim().split(/\s+/);
+              const words = title.trim().split(/\s+/).map((word) => word.charAt(0) + word.slice(1).toLowerCase());
               const firstLine = words.length > 1 ? words.slice(0, -1).join(" ") : words[0];
               const lastLine = words.length > 1 ? words[words.length - 1] : "";
-              return <><span className="block whitespace-nowrap">{firstLine}</span>{lastLine && <span className="hero-title-accent block">{lastLine}<span className="text-[var(--accent)]">.</span></span>}</>;
+              return <><span className="block">{firstLine}</span>{lastLine && <span className="hero-title-accent block">{lastLine}<span className="text-[var(--accent)]">.</span></span>}</>;
             })()}
           </motion.h1>
 

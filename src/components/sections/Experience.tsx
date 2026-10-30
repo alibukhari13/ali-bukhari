@@ -5,12 +5,10 @@ import { ArrowUpRight, BriefcaseBusiness } from "lucide-react";
 import { EXPERIENCE } from "@/constants/skills";
 import { easeOut } from "@/lib/motion";
 import Reveal from "@/components/ui/Reveal";
-import MotionOrnament from "@/components/ui/MotionOrnament";
 
 export default function Experience() {
   return (
     <section id="experience" className="section-shell experience-editorial isolate">
-      <MotionOrnament variant="diamond" className="-left-24 top-14 h-64 w-64 sm:h-80 sm:w-80" />
       <div className="relative z-10 mx-auto max-w-[1240px]">
         <Reveal className="mb-10 grid gap-5 md:mb-14 md:grid-cols-[.8fr_1.2fr] md:items-end"><div><p className="mb-3 text-xs font-semibold uppercase tracking-[.18em] text-[var(--accent)]">The path so far</p><h2 className="font-display text-4xl font-bold tracking-[-.055em] text-[var(--foreground)] sm:text-5xl">Experience<span className="text-[var(--accent)]">.</span></h2></div><p className="max-w-xl text-base leading-relaxed text-[var(--gray-light)]">Over three years working across product teams, digital agencies and commerce brands—shipping interfaces people use every day.</p></Reveal>
         <div className="experience-timeline relative grid gap-4 md:grid-cols-2 md:gap-5">
