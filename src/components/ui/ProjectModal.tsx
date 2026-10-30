@@ -2,265 +2,110 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useEffect, useCallback } from "react";
-import { motion, AnimatePresence, Variants } from "framer-motion";
-import {
-  X,
-  ArrowUpRight,
-  ArrowLeft,
-  ArrowRight,
-  ExternalLink,
-  Layers,
-} from "lucide-react";
-import MiniSparkline from "@/components/ui/MiniSparkline";
+import { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowLeft, ArrowRight, ArrowUpRight, ExternalLink, Layers3, X } from "lucide-react";
 import { easeOut } from "@/lib/motion";
-
-const backdropVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.25 } },
-  exit: { opacity: 0, transition: { duration: 0.2 } },
-};
-
-const modalVariants: Variants = {
-  hidden: { opacity: 0, y: 36, scale: 0.96 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { type: "spring", damping: 28, stiffness: 340 },
-  },
-  exit: { opacity: 0, y: 20, scale: 0.98, transition: { duration: 0.2 } },
-};
 
 type Props = {
   project: any | null;
   projects: any[];
   onClose: () => void;
   onSelect: (project: any) => void;
-  trend?: number[];
 };
 
-export default function ProjectModal({
-  project,
-  projects,
-  onClose,
-  onSelect,
-  trend = [42, 50, 48, 62, 58, 74, 80, 92],
-}: Props) {
-  const index = project
-    ? projects.findIndex((p) => (p.id ?? p.title) === (project.id ?? project.title))
-    : -1;
+export default function ProjectModal({ project, projects, onClose, onSelect }: Props) {
+  const [portalRoot, setPortalRoot] = useState<HTMLElement | null>(null);
+  const index = project ? projects.findIndex((item) => (item.id ?? item.title) === (project.id ?? project.title)) : -1;
+  const goPrev = useCallback(() => { if (index > 0) onSelect(projects[index - 1]); }, [index, onSelect, projects]);
+  const goNext = useCallback(() => { if (index >= 0 && index < projects.length - 1) onSelect(projects[index + 1]); }, [index, onSelect, projects]);
 
-  const goPrev = useCallback(() => {
-    if (index <= 0) return;
-    onSelect(projects[index - 1]);
-  }, [index, onSelect, projects]);
-
-  const goNext = useCallback(() => {
-    if (index < 0 || index >= projects.length - 1) return;
-    onSelect(projects[index + 1]);
-  }, [index, onSelect, projects]);
+  useEffect(() => {
+    setPortalRoot(document.body);
+  }, []);
 
   useEffect(() => {
     if (!project) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-      if (e.key === "ArrowLeft") goPrev();
-      if (e.key === "ArrowRight") goNext();
+    const previousOverflow = document.body.style.overflow;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+      if (event.key === "ArrowLeft") goPrev();
+      if (event.key === "ArrowRight") goNext();
     };
-    window.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKeyDown);
     return () => {
-      window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "auto";
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
     };
   }, [project, onClose, goPrev, goNext]);
 
-  return (
+  if (!portalRoot) return null;
+
+  return createPortal((
     <AnimatePresence>
       {project && (
-        <div
-          className="fixed inset-0 z-[120] flex items-end justify-center sm:items-center sm:p-5 md:p-8"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="project-modal-title"
-        >
-          <motion.div
-            variants={backdropVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            onClick={onClose}
-            className="absolute inset-0 bg-black/78 backdrop-blur-md"
-          />
-
-          <motion.div
+        <motion.div className="fixed inset-0 z-[1000] grid place-items-center p-3 sm:p-5 md:p-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: .2 }}>
+          <button type="button" aria-label="Close project details" onClick={onClose} className="absolute inset-0 cursor-default bg-[#101611]/70 backdrop-blur-sm" />
+          <motion.section
             key={project.id ?? project.title}
-            variants={modalVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="relative z-10 flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden border border-[var(--border-color)] bg-[var(--background)] shadow-[0_-20px_80px_rgba(0,0,0,0.45)] sm:max-h-[88vh] sm:shadow-[0_24px_80px_rgba(0,0,0,0.5)]"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="project-modal-title"
+            initial={{ opacity: 0, y: 18, scale: .985 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 12, scale: .99 }}
+            transition={{ duration: .24, ease: easeOut }}
+            className="relative z-10 flex h-[min(800px,calc(100dvh-1.5rem))] w-full max-w-[1160px] flex-col overflow-hidden rounded-[1.65rem] border border-[var(--border-color)] bg-[var(--surface)] shadow-[0_35px_110px_rgba(0,0,0,.38)] sm:h-[min(780px,calc(100dvh-2.5rem))] sm:rounded-[2rem]"
           >
-            {/* Top bar */}
-            <div className="flex items-center justify-between border-b border-[var(--border-color)] px-4 py-3 sm:px-5">
-              <div className="flex items-center gap-3">
-                <span className="font-display text-sm text-[var(--accent)]">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--gray-muted)]">
-                  / {String(projects.length).padStart(2, "0")}
-                </span>
-                {project.link && (
-                  <span className="ml-1 inline-flex items-center gap-1.5 border border-[var(--accent)]/30 bg-[var(--accent-soft)] px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-[var(--accent)]">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
-                    Live
-                  </span>
-                )}
+            <header className="flex h-[62px] shrink-0 items-center justify-between border-b border-[var(--border-color)] px-4 sm:h-[70px] sm:px-6">
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="font-mono text-xs font-semibold text-[var(--accent)]">{String(index + 1).padStart(2, "0")}</span>
+                <span className="h-4 w-px bg-[var(--border-color)]" />
+                <span className="truncate text-xs font-medium text-[var(--gray-muted)]">{project.category}</span>
+                {project.link && <span className="hidden items-center gap-1.5 rounded-full bg-[var(--accent-soft)] px-2.5 py-1 text-[10px] font-semibold text-[var(--accent)] sm:inline-flex"><span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)]"/>Live project</span>}
+              </div>
+              <div className="flex shrink-0 items-center gap-1.5">
+                <button type="button" onClick={goPrev} disabled={index <= 0} aria-label="Previous project" className="flex h-9 w-9 items-center justify-center rounded-xl text-[var(--gray-light)] transition hover:bg-[var(--input-bg)] hover:text-[var(--foreground)] disabled:opacity-30"><ArrowLeft size={17}/></button>
+                <button type="button" onClick={goNext} disabled={index >= projects.length - 1} aria-label="Next project" className="flex h-9 w-9 items-center justify-center rounded-xl text-[var(--gray-light)] transition hover:bg-[var(--input-bg)] hover:text-[var(--foreground)] disabled:opacity-30"><ArrowRight size={17}/></button>
+                <span className="mx-1 h-5 w-px bg-[var(--border-color)]" />
+                <button type="button" onClick={onClose} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--input-bg)] text-[var(--foreground)] transition hover:bg-[var(--accent)] hover:text-[var(--accent-ink)]"><X size={17}/></button>
+              </div>
+            </header>
+
+            <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(205px,34%)_minmax(0,1fr)] md:grid-cols-[1.08fr_.92fr] md:grid-rows-1">
+              <div className="relative min-h-[205px] overflow-hidden bg-[#18231b] sm:min-h-[265px] md:min-h-0">
+                <motion.img key={(project.id ?? project.title) + "-image"} src={project.image_url || project.image} alt={`${project.title} project preview`} initial={{ scale: 1.035, opacity: .7 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: .4, ease: easeOut }} className="absolute inset-0 h-full w-full object-cover object-top" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#111912]/70 via-transparent to-[#111912]/5" />
+                <span className="absolute bottom-4 left-4 rounded-full border border-white/20 bg-black/25 px-3 py-1.5 text-[10px] font-medium text-white/85 backdrop-blur-md sm:bottom-6 sm:left-6">Project {String(index + 1).padStart(2, "0")} <span className="mx-1.5 text-white/40">/</span> {String(projects.length).padStart(2, "0")}</span>
               </div>
 
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={goPrev}
-                  disabled={index <= 0}
-                  className="flex h-9 w-9 items-center justify-center border border-[var(--border-color)] text-[var(--gray-light)] transition hover:border-[var(--accent)] hover:text-[var(--accent)] disabled:opacity-30"
-                  aria-label="Previous project"
-                >
-                  <ArrowLeft size={15} />
-                </button>
-                <button
-                  type="button"
-                  onClick={goNext}
-                  disabled={index >= projects.length - 1}
-                  className="flex h-9 w-9 items-center justify-center border border-[var(--border-color)] text-[var(--gray-light)] transition hover:border-[var(--accent)] hover:text-[var(--accent)] disabled:opacity-30"
-                  aria-label="Next project"
-                >
-                  <ArrowRight size={15} />
-                </button>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="flex h-9 w-9 items-center justify-center border border-[var(--border-color)] text-[var(--foreground)] transition hover:border-[var(--accent)] hover:bg-[var(--accent)] hover:text-black"
-                  aria-label="Close"
-                >
-                  <X size={16} />
-                </button>
-              </div>
+              <motion.div key={(project.id ?? project.title) + "-content"} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .3, ease: easeOut }} className="min-h-0 overflow-y-auto px-5 py-6 sm:px-7 sm:py-8 lg:px-10 lg:py-10">
+                <p className="text-[10px] font-semibold uppercase tracking-[.18em] text-[var(--accent)]">Case study</p>
+                <h2 id="project-modal-title" className="mt-3 max-w-xl font-display text-[clamp(1.7rem,3vw,2.7rem)] font-semibold leading-[1.04] tracking-[-.055em] text-[var(--foreground)]">{project.title}</h2>
+                <p className="mt-4 text-sm leading-[1.75] text-[var(--gray-light)] sm:text-[15px]">{project.description}</p>
+
+                <div className="my-6 h-px bg-[var(--border-color)] sm:my-8" />
+                <div>
+                  <div className="flex items-center gap-2 text-[var(--foreground)]"><Layers3 size={15} className="text-[var(--accent)]"/><h3 className="text-xs font-semibold">Built with</h3></div>
+                  <div className="mt-3 flex flex-wrap gap-2">{(project.tags || []).map((tag: string) => <span key={tag} className="rounded-full border border-[var(--border-color)] bg-[var(--input-bg)] px-3 py-1.5 text-[11px] font-medium text-[var(--gray-light)]">{tag}</span>)}</div>
+                </div>
+
+                <div className="mt-7 sm:mt-9">
+                  <h3 className="text-xs font-semibold text-[var(--foreground)]">The project</h3>
+                  <p className="mt-2 text-sm leading-[1.75] text-[var(--gray-light)]">{project.full_detail || project.description}</p>
+                </div>
+
+                <div className="mt-8 flex flex-wrap items-center gap-3 border-t border-[var(--border-color)] pt-6">
+                  {project.link ? <a href={project.link} target="_blank" rel="noopener noreferrer" className="inline-flex h-11 items-center gap-2 rounded-xl bg-[var(--accent)] px-4 text-xs font-semibold text-[var(--accent-ink)] transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[var(--accent)]/20">Visit live project <ExternalLink size={14}/></a> : <span className="text-xs text-[var(--gray-muted)]">Project preview</span>}
+                  <button type="button" onClick={onClose} className="inline-flex h-11 items-center gap-2 rounded-xl border border-[var(--border-color)] px-4 text-xs font-medium text-[var(--foreground)] transition hover:border-[var(--accent)] hover:text-[var(--accent)]">Back to projects <ArrowUpRight size={14}/></button>
+                </div>
+              </motion.div>
             </div>
-
-            <div className="overflow-y-auto no-scrollbar">
-              {/* Full-width cover image */}
-              <div className="relative aspect-[16/9] w-full overflow-hidden bg-[var(--input-bg)] sm:aspect-[2/1]">
-                <motion.img
-                  key={(project.id ?? project.title) + "-img"}
-                  src={project.image_url}
-                  alt={project.title}
-                  initial={{ scale: 1.08, opacity: 0.65 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.55, ease: easeOut }}
-                  className="absolute inset-0 h-full w-full object-cover object-top"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[var(--background)] via-black/25 to-transparent" />
-                <span className="absolute left-4 top-4 border border-white/20 bg-black/55 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-white backdrop-blur-sm sm:left-5 sm:top-5">
-                  {project.category}
-                </span>
-              </div>
-
-              {/* Content below cover */}
-              <div className="relative z-10 -mt-10 px-5 pb-8 sm:px-7 sm:pb-9 md:px-8">
-                <motion.div
-                  key={(project.id ?? project.title) + "-body"}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, ease: easeOut }}
-                >
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
-                    {project.category}
-                  </p>
-                  <h2
-                    id="project-modal-title"
-                    className="mt-2 font-display text-2xl uppercase leading-tight tracking-tight text-[var(--foreground)] sm:text-3xl md:text-[2.1rem]"
-                  >
-                    {project.title}
-                  </h2>
-
-                  <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--gray-light)] md:text-[15px]">
-                    {project.description}
-                  </p>
-
-                  <div className="mt-5 flex items-center gap-2">
-                    <Layers size={13} className="text-[var(--accent)]" />
-                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--gray-muted)]">
-                      Stack
-                    </p>
-                  </div>
-                  <div className="mt-2.5 flex flex-wrap gap-2">
-                    {(project.tags || []).map((tag: string) => (
-                      <span
-                        key={tag}
-                        className="border border-[var(--border-color)] bg-[var(--input-bg)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--gray-light)]"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="mt-6 h-px w-full bg-[var(--border-color)]" />
-
-                  <p className="mt-5 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--gray-muted)]">
-                    Overview
-                  </p>
-                  <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--gray-light)] md:text-[15px]">
-                    {project.full_detail}
-                  </p>
-
-                  <div className="mt-6 border border-[var(--border-color)] bg-[var(--card-bg)] p-4">
-                    <div className="mb-1.5 flex items-center justify-between">
-                      <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--gray-muted)]">
-                        Project pulse
-                      </span>
-                      <span className="text-[10px] font-semibold text-[var(--accent)]">
-                        {project.link ? "Live product" : "Case study"}
-                      </span>
-                    </div>
-                    <MiniSparkline data={trend} height={42} />
-                  </div>
-
-                  <div className="mt-6 flex flex-wrap items-center gap-3">
-                    {project.link && (
-                      <a
-                        href={project.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 bg-[var(--accent)] px-5 py-3 text-xs font-bold uppercase tracking-[0.16em] text-black transition hover:brightness-110"
-                      >
-                        Launch Demo <ExternalLink size={14} />
-                      </a>
-                    )}
-                    <button
-                      type="button"
-                      onClick={onClose}
-                      className="inline-flex items-center gap-2 border border-[var(--border-color)] px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground)] transition hover:border-[var(--accent)]"
-                    >
-                      Close
-                    </button>
-                    {index < projects.length - 1 && (
-                      <button
-                        type="button"
-                        onClick={goNext}
-                        className="ml-auto inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.14em] text-[var(--accent)] transition hover:brightness-110"
-                      >
-                        Next project <ArrowUpRight size={14} />
-                      </button>
-                    )}
-                  </div>
-                </motion.div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
+          </motion.section>
+        </motion.div>
       )}
     </AnimatePresence>
-  );
+  ), portalRoot);
 }

@@ -48,9 +48,9 @@ export default function DeliveryFlow({ className = "" }: { className?: string })
     >
       <defs>
         <radialGradient id={`${uid}-core`} cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#4a2a0a" />
-          <stop offset="75%" stopColor="#1a1008" />
-          <stop offset="100%" stopColor="#0a0806" />
+          <stop offset="0%" stopColor="#283b2c" />
+          <stop offset="75%" stopColor="#19241b" />
+          <stop offset="100%" stopColor="#101310" />
         </radialGradient>
         <filter id={`${uid}-glow`} x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="5" />
@@ -74,7 +74,7 @@ export default function DeliveryFlow({ className = "" }: { className?: string })
           <motion.path
             d={d}
             fill="none"
-            stroke="#ffb347"
+            stroke="#80ad75"
             strokeWidth="2.2"
             strokeLinecap="round"
             strokeDasharray="5 28"

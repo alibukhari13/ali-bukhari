@@ -89,7 +89,7 @@ export const PROJECTS = [
     fullDetail:
       "Zuhd delivers Islamic knowledge through lectures, blogs, courses, and community programs based on the Qur’an and Sunnah. It includes structured learning paths, multimedia content, and after-school programs. Built as a content-focused web platform with modern frontend tooling.",
     image:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1200",
+      "https://images.unsplash.com/photo-1564121211835-e88c852648ab?q=80&w=1200",
     tags: ["JavaScript", "Tailwind CSS", "YouTube Integration", "Full-Stack Development"],
     link: "https://zuhd.au/",
   },

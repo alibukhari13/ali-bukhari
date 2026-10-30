@@ -2,156 +2,88 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, MoveUpRight } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import SectionHeader from "@/components/ui/SectionHeader";
-import SectionBackdrop from "@/components/ui/SectionBackdrop";
-import MiniSparkline from "@/components/ui/MiniSparkline";
-import NetworkGraph from "@/components/charts/NetworkGraph";
 import ProjectModal from "@/components/ui/ProjectModal";
 import { PROJECTS } from "@/constants/projects";
 import { easeOut } from "@/lib/motion";
+import Reveal from "@/components/ui/Reveal";
+import ProjectMixChart from "@/components/charts/ProjectMixChart";
+import MotionOrnament from "@/components/ui/MotionOrnament";
 
-const TRENDS = [
-  [40, 48, 45, 60, 58, 72, 80, 90],
-  [30, 42, 50, 48, 65, 70, 78, 85],
-  [35, 38, 55, 62, 60, 75, 82, 88],
-  [28, 45, 52, 58, 70, 68, 84, 92],
-  [42, 40, 55, 63, 72, 78, 86, 94],
-  [33, 48, 44, 60, 66, 74, 81, 89],
-];
-
-const FALLBACK_PROJECTS = PROJECTS.map((p, i) => ({
-  ...p,
-  image_url: p.image,
-  full_detail: p.fullDetail,
-  order_index: i + 1,
+const FALLBACK_PROJECTS = PROJECTS.map((project, index) => ({
+  ...project,
+  image_url: project.image,
+  full_detail: project.fullDetail,
+  order_index: index + 1,
 }));
 
-const Projects = () => {
+export default function Projects() {
   const [projects, setProjects] = useState<any[]>(FALLBACK_PROJECTS);
   const [selected, setSelected] = useState<any | null>(null);
 
   useEffect(() => {
-    const fetchProjects = async () => {
-      const { data } = await supabase
-        .from("projects")
-        .select("*")
-        .order("order_index", { ascending: true });
+    const load = async () => {
+      const { data } = await supabase.from("projects").select("*").order("order_index", { ascending: true });
       if (data?.length) setProjects(data);
     };
-    fetchProjects();
+    load();
   }, []);
 
-  const selectedIndex = selected
-    ? projects.findIndex((p) => (p.id ?? p.title) === (selected.id ?? selected.title))
-    : 0;
-
   return (
-    <section id="projects" className="section-shell">
-      <SectionBackdrop variant="dots" />
-
-      <div className="relative z-10 mx-auto max-w-[1100px]">
-        <SectionHeader
-          title="Projects"
-          subtitle="Selected product work — stack, outcomes, and live demos where available."
-        />
-
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mb-10 flex flex-col items-start justify-between gap-6 border border-[var(--border-color)] bg-[var(--card-bg)] p-5 md:flex-row md:items-center md:p-6"
-        >
-          <div className="max-w-md">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
-              Connected stack
-            </p>
-            <p className="mt-2 text-sm leading-relaxed text-[var(--gray-light)]">
-              Most projects combine Next.js or React UI with APIs, Shopify, or Supabase —
-              shipped as real products, not demos.
-            </p>
+    <section id="projects" className="section-shell projects-editorial isolate">
+      <MotionOrnament variant="arcs" className="-left-20 bottom-8 h-72 w-72 sm:h-96 sm:w-96" />
+      <div className="relative z-10 mx-auto max-w-[1240px]">
+        <Reveal className="mb-10 flex flex-col justify-between gap-5 sm:mb-12 md:flex-row md:items-end">
+          <div className="max-w-[650px]">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[.18em] text-[var(--accent)]">Selected work · 2022—26</p>
+            <h2 className="font-display text-4xl font-bold leading-[.98] tracking-[-.055em] text-[var(--foreground)] sm:text-5xl lg:text-6xl">Projects with purpose<span className="text-[var(--accent)]">.</span></h2>
+            <p className="mt-4 max-w-xl text-base leading-relaxed text-[var(--gray-light)]">A selection of products and digital experiences, built to make everyday tasks feel simpler.</p>
           </div>
-          <div className="w-full max-w-[280px] shrink-0">
-            <NetworkGraph />
-          </div>
-        </motion.div>
+          <ProjectMixChart projects={projects} />
+        </Reveal>
 
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project, index) => (
-            <motion.button
-              key={project.id ?? project.title}
-              type="button"
-              onClick={() => setSelected(project)}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-30px" }}
-              transition={{ delay: index * 0.04, duration: 0.45, ease: easeOut }}
-              whileHover={{ y: -4 }}
-              className="panel group cursor-pointer overflow-hidden text-left"
-            >
-              <div className="relative aspect-[16/10] w-full overflow-hidden bg-[var(--input-bg)]">
-                <img
-                  src={project.image_url}
-                  alt={project.title}
-                  className="absolute inset-0 h-full w-full object-cover object-top transition duration-700 group-hover:scale-[1.04]"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[var(--background)] via-black/15 to-transparent" />
-                <span className="absolute left-3 top-3 border border-white/20 bg-black/50 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-white backdrop-blur-sm">
-                  {project.category}
-                </span>
-                <div className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center border border-white/20 bg-black/45 text-white opacity-0 backdrop-blur-sm transition group-hover:opacity-100">
-                  <ArrowUpRight size={14} />
-                </div>
-              </div>
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6 lg:grid-cols-3">
+          {projects.map((project, index) => {
+            const featured = index === 0;
+            const image = project.image_url || project.image;
+            return (
+              <motion.article
+                key={project.id ?? project.title}
+                initial={{ opacity: 0, y: 18 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ delay: (index % 2) * .07, duration: .45, ease: easeOut }}
+                className={`project-card group overflow-hidden rounded-[1.65rem] border border-[var(--border-color)] bg-[var(--surface)] transition duration-300 hover:-translate-y-1 hover:border-[var(--accent)]/35 hover:shadow-[0_24px_60px_rgba(20,35,25,.1)] ${featured ? "md:col-span-2 md:grid md:grid-cols-[1.25fr_.75fr] lg:col-span-3" : ""}`}
+              >
+                <button type="button" onClick={() => setSelected(project)} aria-label={`View ${project.title} case study`} className={`project-image relative block w-full overflow-hidden bg-[var(--input-bg)] text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-[var(--accent)] ${featured ? "aspect-[1.55] md:aspect-auto md:min-h-[360px]" : "aspect-[1.55]"}`}>
+                  <img src={image} alt={`${project.title} website preview`} loading={index < 2 ? "eager" : "lazy"} className="absolute inset-0 h-full w-full object-cover object-top transition duration-700 ease-out group-hover:scale-[1.035]" />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#101a13]/55 via-transparent to-[#101a13]/10 opacity-75 transition-opacity duration-300 group-hover:opacity-100" />
+                  <span className="absolute left-4 top-4 rounded-full border border-white/25 bg-[#101a13]/55 px-3 py-1.5 text-[10px] font-medium text-white backdrop-blur-md sm:left-5 sm:top-5">{project.category}</span>
+                  <span className="absolute bottom-4 left-4 text-[10px] font-semibold uppercase tracking-[.14em] text-white/75 sm:bottom-5 sm:left-5">{featured ? "Featured project" : `Project ${String(index + 1).padStart(2, "0")}`}</span>
+                  <span className="absolute bottom-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#18241b] shadow-lg transition duration-300 group-hover:-translate-y-1 group-hover:translate-x-1 sm:bottom-5 sm:right-5"><MoveUpRight size={17}/></span>
+                </button>
 
-              <div className="p-4 md:p-5">
-                <h3 className="font-display text-base uppercase leading-snug text-[var(--foreground)] md:text-lg">
-                  {project.title}
-                </h3>
-                <p className="mt-2 line-clamp-2 text-sm text-[var(--gray-light)]">
-                  {project.description}
-                </p>
-
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  {(project.tags || []).slice(0, 3).map((tag: string) => (
-                    <span
-                      key={tag}
-                      className="border border-[var(--border-color)] px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-[var(--gray-muted)]"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-
-                <div className="mt-4 border-t border-[var(--border-color)] pt-3">
-                  <div className="mb-1.5 flex items-center justify-between">
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--gray-muted)]">
-                      Activity
-                    </span>
-                    {project.link ? (
-                      <span className="text-[10px] font-semibold text-[var(--accent)]">Live</span>
-                    ) : null}
+                <div className={`flex flex-col p-5 sm:p-6 ${featured ? "md:justify-center md:p-8 lg:p-10" : ""}`}>
+                  <div className="flex items-start justify-between gap-3">
+                    <button type="button" onClick={() => setSelected(project)} className="text-left font-display text-xl font-semibold leading-tight tracking-[-.035em] text-[var(--foreground)] transition hover:text-[var(--accent)] sm:text-2xl">{project.title}</button>
+                    <span className="shrink-0 font-mono text-[11px] text-[var(--gray-muted)]">{String(index + 1).padStart(2, "0")}</span>
                   </div>
-                  <MiniSparkline data={TRENDS[index % TRENDS.length]} delay={index * 0.04} />
+                  <p className={`mt-3 text-sm leading-relaxed text-[var(--gray-light)] ${featured ? "max-w-md md:mt-4" : "line-clamp-3"}`}>{project.description}</p>
+                  <div className="mt-5 flex flex-wrap gap-2">{(project.tags || []).slice(0, featured ? 4 : 3).map((tag: string) => <span key={tag} className="rounded-full border border-[var(--border-color)] px-3 py-1.5 text-[10px] font-medium text-[var(--gray-muted)]">{tag}</span>)}</div>
+                  <div className="mt-6 flex items-center justify-between border-t border-[var(--border-color)] pt-4">
+                    <button type="button" onClick={() => setSelected(project)} className="inline-flex items-center gap-2 text-xs font-semibold text-[var(--accent)] transition hover:gap-3">View case study <ArrowUpRight size={14}/></button>
+                    {project.link && <a href={project.link} target="_blank" rel="noopener noreferrer" aria-label={`Open ${project.title} website`} onClick={(event) => event.stopPropagation()} className="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-medium text-[var(--gray-muted)] transition hover:bg-[var(--input-bg)] hover:text-[var(--foreground)]">Visit site <ArrowUpRight size={14}/></a>}
+                  </div>
                 </div>
-              </div>
-            </motion.button>
-          ))}
+              </motion.article>
+            );
+          })}
         </div>
       </div>
-
-      <ProjectModal
-        project={selected}
-        projects={projects}
-        onClose={() => setSelected(null)}
-        onSelect={setSelected}
-        trend={TRENDS[Math.max(0, selectedIndex) % TRENDS.length]}
-      />
+      <ProjectModal project={selected} projects={projects} onClose={() => setSelected(null)} onSelect={setSelected}/>
     </section>
   );
-};
-
-export default Projects;
+}

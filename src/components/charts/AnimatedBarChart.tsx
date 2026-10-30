@@ -58,8 +58,8 @@ export default function AnimatedBarChart({
       <svg viewBox="0 0 320 180" className="h-auto w-full" role="img" aria-label={title}>
         <defs>
           <linearGradient id={`${uid}-fill`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#ffb347" />
-            <stop offset="100%" stopColor="#ff8c00" />
+            <stop offset="0%" stopColor="#80ad75" />
+            <stop offset="100%" stopColor="#9dcba6" />
           </linearGradient>
           <linearGradient id={`${uid}-sheen`} x1="0" y1="0" x2="1" y2="0">
             <stop offset="0%" stopColor="#fff" stopOpacity="0" />
@@ -120,7 +120,7 @@ export default function AnimatedBarChart({
                 x={x - 2}
                 width={barW + 4}
                 rx={4}
-                fill="#ff8c00"
+                fill="#9dcba6"
                 fillOpacity={0.18}
                 filter={`url(#${uid}-glow)`}
                 initial={{ y: base, height: 0 }}

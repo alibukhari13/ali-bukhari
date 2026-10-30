@@ -1,176 +1,77 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Download } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowDownToLine } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import SectionHeader from "@/components/ui/SectionHeader";
-import SectionBackdrop from "@/components/ui/SectionBackdrop";
-import RadarChart from "@/components/charts/RadarChart";
-import DotWave from "@/components/charts/DotWave";
-import { SKILLS } from "@/constants/skills";
 import { FALLBACK_ABOUT } from "@/constants/fallback";
-import { easeOut } from "@/lib/motion";
+import SkillGraph from "@/components/ui/SkillGraph";
+import Reveal from "@/components/ui/Reveal";
+import MotionOrnament from "@/components/ui/MotionOrnament";
 
-const FOCUS = [
-  {
-    title: "Product UI",
-    text: "Reusable components, clear layouts, and interfaces that feel fast on every device.",
-  },
-  {
-    title: "Shopify commerce",
-    text: "Theme customization, storefronts, apps, and payment flows built for conversion.",
-  },
-  {
-    title: "Full-stack delivery",
-    text: "React/Next frontends wired to Node, Express, MongoDB, and REST APIs.",
-  },
-];
+type AboutContent = typeof FALLBACK_ABOUT;
 
-const About = () => {
-  const [aboutData, setAboutData] = useState<any>(FALLBACK_ABOUT);
+export default function About() {
+  const [aboutData, setAboutData] = useState<AboutContent>(FALLBACK_ABOUT);
 
   useEffect(() => {
-    const fetchAbout = async () => {
-      const { data } = await supabase.from("about").select("*").single();
-      if (data) setAboutData(data);
-    };
-    fetchAbout();
+    let active = true;
+    async function loadAbout() {
+      const { data } = await supabase.from("about").select("*").limit(1).maybeSingle();
+      if (active && data) setAboutData({ ...FALLBACK_ABOUT, ...data });
+    }
+    loadAbout();
+    return () => { active = false; };
   }, []);
 
   const paragraphs = aboutData.description_texts || FALLBACK_ABOUT.description_texts;
+  const intro = (paragraphs[0] || FALLBACK_ABOUT.description_texts[0])
+    .replace(/^Hi,\s*I'm Syed Ali Eman\s*[—–-]\s*/i, "")
+    .replace(/^a Web Developer/i, "A web developer")
+    .replace(/ I specialize in .+?\.$/i, ".");
+  const workStory = "I bring product ideas to life through thoughtful interfaces, dependable integrations, and careful attention to performance across devices.";
   const stats = aboutData.stats || FALLBACK_ABOUT.stats;
 
   return (
-    <section id="about" className="section-shell">
-      <SectionBackdrop variant="orbs" />
+    <section id="about" className="section-shell isolate">
+      <MotionOrnament variant="dots" className="-right-10 top-8 h-56 w-56 sm:h-72 sm:w-72" />
       <div className="relative z-10 mx-auto max-w-[1100px]">
-        <SectionHeader
-          title="About Me"
-          subtitle="Web developer focused on clean interfaces, Shopify commerce, and reliable full-stack delivery."
-        />
+        <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.78fr)] lg:gap-12">
+          <Reveal>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">A little about me</p>
+            <h2 className="mt-4 max-w-xl font-display text-3xl leading-tight text-[var(--foreground)] sm:text-4xl lg:text-5xl">
+              I build useful web experiences, from first idea to launch.
+            </h2>
+            <p className="mt-6 max-w-2xl text-base leading-7 text-[var(--gray-light)] sm:text-lg sm:leading-8">{intro}</p>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--gray-muted)] sm:text-base">{workStory}</p>
+            <a href="/resume.pdf" download="Syed_Ali_Eman_Resume.pdf" className="mt-6 inline-flex min-h-11 items-center gap-2 border border-[var(--border-color)] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--foreground)] transition hover:border-[var(--accent)] hover:text-[var(--accent)]">
+              Download résumé <ArrowDownToLine aria-hidden="true" size={15} />
+            </a>
+          </Reveal>
 
-        <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-12 lg:gap-12">
-          <div className="lg:col-span-7">
-            <motion.div
-              initial={{ opacity: 0, y: 18 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, ease: easeOut }}
-              className="space-y-4 text-base leading-relaxed text-[var(--gray-light)] md:text-lg"
-            >
-              {paragraphs.map((p: string, i: number) => (
-                <p key={i}>{p}</p>
-              ))}
-            </motion.div>
-
-            <div className="mt-6 max-w-md">
-              <DotWave />
-            </div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 14 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="mt-8 grid grid-cols-3 gap-3"
-            >
-              {stats.map((stat: any) => (
-                <div key={stat.label} className="panel px-3 py-4 text-center">
-                  <p className="font-display text-lg text-[var(--accent)] md:text-xl">
-                    {stat.value}
-                  </p>
-                  <p className="mt-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-[var(--gray-muted)]">
-                    {stat.label}
-                  </p>
+          <Reveal delay={0.1} className="rounded-2xl border border-[var(--border-color)] bg-[var(--input-bg)] p-5 sm:p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--gray-muted)]">At a glance</p>
+            <dl className="mt-3 divide-y divide-[var(--border-color)]">
+              {stats.map((stat, index) => (
+                <div key={`${stat.label}-${index}`} className="flex items-center justify-between gap-4 py-4 first:pt-3 last:pb-1">
+                  <dt className="text-sm text-[var(--gray-light)]">{stat.label}</dt>
+                  <dd className="text-right font-display text-xl text-[var(--accent)] sm:text-2xl">{stat.value}</dd>
                 </div>
               ))}
-            </motion.div>
-
-            <motion.a
-              href="/resume.pdf"
-              download="Syed_Ali_Resume.pdf"
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              whileHover={{ y: -2 }}
-              className="mt-8 inline-flex items-center gap-3 border border-[var(--border-color)] bg-[var(--input-bg)] px-6 py-3.5 text-xs font-bold uppercase tracking-[0.18em] text-[var(--foreground)] transition hover:border-[var(--accent)] hover:bg-[var(--accent)] hover:text-black"
-            >
-              <Download size={16} />
-              Download Resume
-            </motion.a>
-          </div>
-
-          <div className="space-y-5 lg:col-span-5">
-            <motion.div
-              initial={{ opacity: 0, y: 18 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="panel p-5"
-            >
-              <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
-                Skill shape
-              </p>
-              <p className="mb-3 text-sm text-[var(--gray-muted)]">
-                Where I spend most of my time day to day.
-              </p>
-              <div className="mx-auto max-w-[260px]">
-                <RadarChart
-                  data={[
-                    { label: "React", value: 92 },
-                    { label: "Next", value: 90 },
-                    { label: "Shopify", value: 88 },
-                    { label: "Node", value: 82 },
-                    { label: "UI", value: 90 },
-                    { label: "APIs", value: 86 },
-                  ]}
-                />
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 18 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.06 }}
-              className="panel p-5"
-            >
-              <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
-                Tech stack
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {SKILLS.map((skill) => (
-                  <span
-                    key={skill.name}
-                    className="border border-[var(--border-color)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--gray-light)]"
-                  >
-                    {skill.name}
-                  </span>
-                ))}
-              </div>
-            </motion.div>
-          </div>
+            </dl>
+          </Reveal>
         </div>
 
-        <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-3">
-          {FOCUS.map((item, i) => (
-            <motion.article
-              key={item.title}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.06 }}
-              className="panel p-5"
-            >
-              <p className="font-display text-sm text-[var(--accent)]">0{i + 1}</p>
-              <h3 className="mt-2 font-display text-lg text-[var(--foreground)]">{item.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-[var(--gray-muted)]">{item.text}</p>
-            </motion.article>
-          ))}
-        </div>
+        <Reveal delay={0.05} className="mt-12 rounded-2xl border border-[var(--border-color)] bg-[var(--input-bg)] p-5 sm:mt-14 sm:p-7">
+          <div className="flex flex-wrap items-end justify-between gap-3 border-b border-[var(--border-color)] pb-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">Tools I use every day</p>
+              <h3 className="mt-1 font-display text-2xl text-[var(--foreground)] sm:text-3xl">My toolkit</h3>
+            </div>
+            <p className="max-w-sm text-sm leading-6 text-[var(--gray-muted)]">The technologies behind my web apps, storefronts, and integrations.</p>
+          </div>
+          <SkillGraph />
+        </Reveal>
       </div>
     </section>
   );
-};
-
-export default About;
+}

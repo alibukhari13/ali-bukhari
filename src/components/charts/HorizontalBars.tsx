@@ -24,7 +24,7 @@ export default function HorizontalBars({
             <motion.div
               className="relative h-full"
               style={{
-                background: "linear-gradient(90deg, #c45c00, #ff8c00 55%, #ffb347)",
+                background: "linear-gradient(90deg, #547c60, #9dcba6 55%, #80ad75)",
               }}
               initial={{ width: 0 }}
               whileInView={{ width: `${item.value}%` }}

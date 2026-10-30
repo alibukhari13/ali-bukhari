@@ -1,42 +1,47 @@
 @import "tailwindcss";
 
 :root {
-  --background: #060607;
-  --foreground: #f5f5f6;
-  --accent: #ff8c00;
-  --accent-hover: #e07c00;
-  --accent-soft: rgba(255, 140, 0, 0.12);
-  --border-color: rgba(255, 255, 255, 0.09);
-  --card-bg: rgba(255, 255, 255, 0.028);
-  --card-border: rgba(255, 255, 255, 0.07);
-  --input-bg: rgba(255, 255, 255, 0.035);
-  --gray-muted: #71717a;
-  --gray-light: #a1a1aa;
-  --surface: #0c0c0e;
+  color-scheme: dark;
+  --background: #0d1411;
+  --foreground: #f1f5f1;
+  --accent: #9dcba6;
+  --accent-hover: #b6dabb;
+  --accent-ink: #000000;
+  --accent-soft: rgba(157, 203, 166, 0.13);
+  --border-color: rgba(225, 238, 228, 0.12);
+  --card-bg: rgba(255, 255, 255, 0.04);
+  --card-border: rgba(225, 238, 228, 0.09);
+  --input-bg: rgba(255, 255, 255, 0.05);
+  --gray-muted: #9ba99f;
+  --gray-light: #c7d1ca;
+  --surface: #141e18;
 }
 
 .light {
-  --background: #f6f5f2;
-  --foreground: #121214;
-  --accent: #e07000;
-  --accent-hover: #c46200;
-  --accent-soft: rgba(224, 112, 0, 0.1);
-  --border-color: rgba(0, 0, 0, 0.09);
-  --card-bg: rgba(255, 255, 255, 0.72);
-  --card-border: rgba(0, 0, 0, 0.08);
-  --input-bg: rgba(0, 0, 0, 0.03);
-  --gray-muted: #71717a;
-  --gray-light: #52525b;
-  --surface: #ffffff;
+  color-scheme: light;
+  --background: #f5f4ee;
+  --foreground: #1b241c;
+  --accent: #39764a;
+  --accent-hover: #2d633c;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(57, 118, 74, 0.10);
+  --border-color: rgba(27, 36, 28, 0.11);
+  --card-bg: rgba(255, 255, 255, 0.74);
+  --card-border: rgba(27, 36, 28, 0.09);
+  --input-bg: rgba(27, 36, 28, 0.035);
+  --gray-muted: #697568;
+  --gray-light: #465047;
+  --surface: #fffefa;
 }
 
 ::selection {
-  background-color: rgba(255, 140, 0, 0.28);
+  background-color: color-mix(in srgb, var(--accent) 28%, transparent);
   color: var(--foreground);
 }
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 6.5rem;
 }
 
 body {
@@ -74,16 +79,16 @@ h6,
   pointer-events: none;
   z-index: 0;
   background:
-    radial-gradient(ellipse 90% 55% at 50% -15%, rgba(255, 140, 0, 0.16), transparent 58%),
-    radial-gradient(ellipse 45% 40% at 100% 18%, rgba(255, 140, 0, 0.06), transparent 55%),
+    radial-gradient(ellipse 90% 55% at 50% -15%, color-mix(in srgb, var(--accent) 15%, transparent), transparent 58%),
+    radial-gradient(ellipse 45% 40% at 100% 18%, color-mix(in srgb, var(--accent) 6%, transparent), transparent 55%),
     radial-gradient(ellipse 40% 35% at 0% 85%, rgba(255, 255, 255, 0.03), transparent 50%),
     var(--background);
 }
 
 .light .page-atmosphere {
   background:
-    radial-gradient(ellipse 90% 55% at 50% -15%, rgba(224, 112, 0, 0.13), transparent 58%),
-    radial-gradient(ellipse 45% 40% at 100% 25%, rgba(224, 112, 0, 0.06), transparent 55%),
+    radial-gradient(ellipse 90% 55% at 50% -15%, rgba(57, 118, 74, 0.13), transparent 58%),
+    radial-gradient(ellipse 45% 40% at 100% 25%, rgba(57, 118, 74, 0.06), transparent 55%),
     var(--background);
 }
 
@@ -118,16 +123,21 @@ h6,
 
 .panel {
   border: 1px solid var(--border-color);
+  border-radius: 20px;
   background: var(--card-bg);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.08);
+  transition: border-color 220ms ease, background-color 220ms ease, box-shadow 220ms ease, transform 220ms ease;
 }
 
 .section-shell {
   position: relative;
   z-index: 10;
   width: 100%;
-  padding: 4.5rem 1rem;
+  padding: clamp(4.75rem, 8vw, 7rem) 1rem;
   overflow: hidden;
 }
+
+section[id] { scroll-margin-top: 6rem; }
 
 @media (min-width: 768px) {
   .section-shell {
@@ -151,7 +161,7 @@ h6,
 }
 
 .section-dots {
-  background-image: radial-gradient(rgba(255, 140, 0, 0.18) 1px, transparent 1px);
+  background-image: radial-gradient(color-mix(in srgb, var(--accent) 18%, transparent) 1px, transparent 1px);
   background-size: 22px 22px;
   mask-image: radial-gradient(ellipse 65% 55% at 50% 50%, black, transparent 75%);
   -webkit-mask-image: radial-gradient(ellipse 65% 55% at 50% 50%, black, transparent 75%);
@@ -160,7 +170,7 @@ h6,
 .nav-pill-active {
   background: var(--accent-soft);
   color: var(--accent);
-  border: 1px solid rgba(255, 140, 0, 0.35);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
 @keyframes float-orb {
@@ -186,3 +196,69 @@ h6,
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* A quieter, more tactile portfolio system. */
+:where(a, button, input, textarea, select):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--background);
+}
+
+.panel:hover {
+  border-color: color-mix(in srgb, var(--accent) 34%, var(--border-color));
+}
+
+@media (max-width: 767px) {
+  .section-shell { padding-inline: 1rem; }
+}
+
+
+/* Small interaction details keep the interface feeling deliberate. */
+nav { border-radius: 18px; }
+nav a, nav button { border-radius: 999px; }
+.panel img { transition: transform 650ms cubic-bezier(.2,.75,.25,1); }
+.panel:hover img { transform: scale(1.025); }
+a, button { -webkit-tap-highlight-color: transparent; }
+button, a { transition-timing-function: cubic-bezier(.2,.75,.25,1); }
+body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+
+/* Editorial portfolio layout */
+.hero-editorial {
+  background:
+    radial-gradient(ellipse 48% 52% at 82% 42%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 72%),
+    radial-gradient(ellipse 42% 46% at 4% 8%, color-mix(in srgb, var(--accent) 5%, transparent), transparent 76%),
+    var(--background);
+}
+.hero-title-accent { color: var(--foreground); }
+.portrait-frame { isolation: isolate; }
+.floating-card { backdrop-filter: blur(18px); }
+.about-editorial { background: color-mix(in srgb, var(--surface) 45%, transparent); }
+.experience-editorial { background: color-mix(in srgb, var(--surface) 30%, transparent); }
+.projects-editorial { background: color-mix(in srgb, var(--surface) 40%, transparent); }
+.project-image img { will-change: transform; }
+.project-card:focus-within .project-image { border-color: var(--accent); }
+.service-card, .experience-card { box-shadow: 0 10px 35px rgba(20, 35, 25, 0.035); }
+.service-card:hover, .experience-card:hover { box-shadow: 0 22px 55px rgba(20, 35, 25, 0.085); }
+
+.hero-art-board { isolation: isolate; }
+.contact-invite { isolation: isolate; }
+.contact-invite::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(ellipse at 100% 0%, rgba(174, 214, 151, .18), transparent 42%);
+  content: "";
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-image img { transition: none; }
+  html { scroll-behavior: auto; }
+}
+
+.network-visual text { fill: #d1ddd3 !important; }
+.network-visual line { stroke: #9bc895; }

@@ -9,17 +9,17 @@ const DEFAULT: Series[] = [
   {
     name: "Frontend",
     values: [30, 42, 48, 55, 62, 70, 78, 86],
-    color: "#ff8c00",
+    color: "#9dcba6",
   },
   {
     name: "Shopify",
     values: [18, 25, 32, 40, 48, 55, 64, 72],
-    color: "#ffb347",
+    color: "#80ad75",
   },
   {
     name: "Backend",
     values: [12, 18, 24, 30, 36, 42, 48, 54],
-    color: "#c45c00",
+    color: "#547c60",
   },
 ];
 

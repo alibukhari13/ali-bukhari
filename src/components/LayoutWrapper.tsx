@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import Navbar from "./layout/Navbar";
 import Footer from "./layout/Footer";
 import { isAdminRoute } from "@/constants/routes";
+import { MotionConfig } from "framer-motion";
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -17,10 +18,12 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
 
   // Normal pages – full layout
   return (
+    <MotionConfig reducedMotion="user">
     <>
       <Navbar />
       <main>{children}</main>
       <Footer />
     </>
+    </MotionConfig>
   );
 }

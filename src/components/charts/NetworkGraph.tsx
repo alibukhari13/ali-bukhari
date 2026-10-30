@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { easeOut } from "@/lib/motion";
 
 const NODES = [
@@ -26,6 +26,8 @@ const LINKS = [
 ];
 
 export default function NetworkGraph({ className = "" }: { className?: string }) {
+  const reduceMotion = useReducedMotion();
+
   return (
     <svg viewBox="0 0 340 180" className={`h-auto w-full ${className}`} aria-label="Tech network">
       {LINKS.map(([a, b], i) => {
@@ -41,8 +43,8 @@ export default function NetworkGraph({ className = "" }: { className?: string })
             stroke="var(--accent)"
             strokeOpacity="0.35"
             strokeWidth="1.2"
-            initial={{ pathLength: 0, opacity: 0 }}
-            whileInView={{ pathLength: 1, opacity: 1 }}
+            initial={reduceMotion ? false : { pathLength: 0, opacity: 0 }}
+            whileInView={reduceMotion ? undefined : { pathLength: 1, opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: i * 0.05, ease: easeOut }}
           />
@@ -57,8 +59,8 @@ export default function NetworkGraph({ className = "" }: { className?: string })
             r="16"
             fill="var(--accent)"
             fillOpacity="0.12"
-            initial={{ scale: 0 }}
-            whileInView={{ scale: 1 }}
+            initial={reduceMotion ? false : { scale: 0 }}
+            whileInView={reduceMotion ? undefined : { scale: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 + i * 0.06, type: "spring" }}
           />
@@ -67,8 +69,8 @@ export default function NetworkGraph({ className = "" }: { className?: string })
             cy={node.y}
             r="5"
             fill="var(--accent)"
-            initial={{ scale: 0 }}
-            whileInView={{ scale: 1 }}
+            initial={reduceMotion ? false : { scale: 0 }}
+            whileInView={reduceMotion ? undefined : { scale: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.25 + i * 0.06, type: "spring" }}
           />
@@ -77,8 +79,8 @@ export default function NetworkGraph({ className = "" }: { className?: string })
             y={node.y + 28}
             textAnchor="middle"
             className="fill-[var(--gray-light)] text-[9px] font-medium"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
+            initial={reduceMotion ? false : { opacity: 0 }}
+            whileInView={reduceMotion ? undefined : { opacity: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.35 + i * 0.05 }}
           >

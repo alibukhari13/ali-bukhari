@@ -3,7 +3,6 @@ export const FALLBACK_HERO = {
   subtitle: "Web Developer | Shopify Developer",
   description:
     "Web Developer with 3+ years of experience building responsive web applications and Shopify stores. Skilled in React.js, Next.js, Node.js, Express.js, MongoDB, and Shopify theme customization.",
-  image_url: "/profile.jpeg",
 };
 
 export const FALLBACK_ABOUT = {

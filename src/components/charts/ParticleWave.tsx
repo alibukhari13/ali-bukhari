@@ -7,9 +7,9 @@ const HEIGHT = 320;
 
 function tone(x: number) {
   const t = x / WIDTH;
-  const r = Math.round(255);
-  const g = Math.round(120 + (180 - 120) * (1 - t));
-  const b = Math.round(0 + 40 * t);
+  const r = Math.round(84 + (185 - 84) * (1 - t));
+  const g = Math.round(124 + (229 - 124) * (1 - t));
+  const b = Math.round(96 + (139 - 96) * (1 - t));
   return `rgb(${r},${g},${b})`;
 }
 

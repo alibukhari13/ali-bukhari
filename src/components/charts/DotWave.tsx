@@ -10,7 +10,7 @@ type Props = {
 export default function DotWave({ tone = "accent", className = "" }: Props) {
   const rows = 6;
   const cols = 28;
-  const color = tone === "accent" ? "var(--accent)" : "#ffb347";
+  const color = tone === "accent" ? "var(--accent)" : "#80ad75";
 
   return (
     <svg

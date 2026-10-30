@@ -5,8 +5,8 @@ import { easeOut } from "@/lib/motion";
 
 const SEGMENTS = [
   { label: "Frontend", value: 40, color: "var(--accent)" },
-  { label: "Shopify", value: 28, color: "#ffb347" },
-  { label: "Backend", value: 22, color: "#c45c00" },
+  { label: "Shopify", value: 28, color: "#80ad75" },
+  { label: "Backend", value: 22, color: "#547c60" },
   { label: "APIs", value: 10, color: "#8a8a93" },
 ];
 

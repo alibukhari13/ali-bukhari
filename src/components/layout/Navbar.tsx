@@ -1,244 +1,93 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Sun, Moon, Menu, X, ArrowUpRight } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
+import { ArrowUpRight, Menu, Moon, Sun, X } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 
-const NAV_LINKS = [
-  { id: "home", name: "Home", href: "#home" },
-  { id: "about", name: "About", href: "#about" },
-  { id: "experience", name: "Work", href: "#experience" },
-  { id: "services", name: "Services", href: "#services" },
-  { id: "projects", name: "Projects", href: "#projects" },
-] as const;
+const links = [
+  { id: "about", label: "About" },
+  { id: "experience", label: "Experience" },
+  { id: "services", label: "Services" },
+  { id: "projects", label: "Projects" },
+];
 
-const Navbar = () => {
-  const [activeSection, setActiveSection] = useState("home");
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
-  const [mounted, setMounted] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+export default function Navbar() {
+  const [active, setActive] = useState("home");
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [theme, setTheme] = useState<"light" | "dark">("light");
 
   useEffect(() => {
-    setMounted(true);
     const root = document.documentElement;
     const saved = window.localStorage.getItem("theme");
-    const next =
-      saved === "dark" || saved === "light"
-        ? saved
-        : root.classList.contains("light")
-          ? "light"
-          : "dark";
-    setTheme(next);
-    root.classList.toggle("dark", next === "dark");
-    root.classList.toggle("light", next === "light");
+    const initial = saved === "light" || saved === "dark" ? saved : root.classList.contains("dark") ? "dark" : "light";
+    setTheme(initial);
+    root.classList.toggle("dark", initial === "dark");
+    root.classList.toggle("light", initial === "light");
+
+    const sections = ["home", ...links.map((link) => link.id), "contact"]
+      .map((id) => document.getElementById(id))
+      .filter((section): section is HTMLElement => Boolean(section));
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach((entry) => { if (entry.isIntersecting) setActive(entry.target.id); }),
+      { rootMargin: "-25% 0px -65% 0px", threshold: 0 },
+    );
+    sections.forEach((section) => observer.observe(section));
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => { observer.disconnect(); window.removeEventListener("scroll", onScroll); };
   }, []);
 
   useEffect(() => {
-    const updateActive = () => {
-      const marker = 130;
-      let current = "home";
-      const all = [...NAV_LINKS, { id: "contact", name: "Contact", href: "#contact" }];
-
-      for (const link of all) {
-        const el = document.getElementById(link.id);
-        if (!el) continue;
-        if (el.getBoundingClientRect().top - marker <= 0) current = link.id;
-      }
-
-      setActiveSection(current);
-      setScrolled(window.scrollY > 12);
-    };
-
-    updateActive();
-    window.addEventListener("scroll", updateActive, { passive: true });
-    window.addEventListener("resize", updateActive);
-    return () => {
-      window.removeEventListener("scroll", updateActive);
-      window.removeEventListener("resize", updateActive);
-    };
-  }, []);
-
-  useEffect(() => {
-    document.body.style.overflow = isMobileMenuOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isMobileMenuOpen]);
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [menuOpen]);
 
   const toggleTheme = () => {
-    const next = theme === "dark" ? "light" : "dark";
+    const next = theme === "light" ? "dark" : "light";
     setTheme(next);
     document.documentElement.classList.toggle("dark", next === "dark");
     document.documentElement.classList.toggle("light", next === "light");
     window.localStorage.setItem("theme", next);
   };
 
+  const closeMenu = () => setMenuOpen(false);
+
   return (
-    <header
-      className={cn(
-        "fixed inset-x-0 top-0 z-[100] transition-all duration-300",
-        scrolled ? "pt-0" : "pt-3 sm:pt-4"
-      )}
-    >
-      <div
-        className={cn(
-          "mx-auto transition-all duration-300",
-          scrolled ? "max-w-none px-0" : "max-w-[1180px] px-3 sm:px-4 md:px-6"
-        )}
-      >
-        <nav
-          className={cn(
-            "relative flex h-[58px] items-center justify-between gap-3 transition-all duration-300 sm:h-16",
-            scrolled
-              ? "border-b border-[var(--border-color)] bg-[var(--background)]/90 px-4 shadow-[0_8px_32px_rgba(0,0,0,0.28)] backdrop-blur-2xl sm:px-6 lg:px-10"
-              : "border border-[var(--border-color)] bg-[var(--background)]/70 px-3 backdrop-blur-xl sm:px-4"
-          )}
-        >
-          {/* Brand */}
-          <Link
-            href="#home"
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="relative z-[60] flex shrink-0 items-center"
-          >
-            <span className="inline-flex items-end font-display text-[1.05rem] uppercase leading-none tracking-tight text-[var(--foreground)] transition hover:text-[var(--accent)] sm:text-lg">
-              Ali Eman
-              <span
-                aria-hidden
-                className="mb-[0.12em] ml-[0.1em] inline-block h-[0.28em] w-[0.28em] shrink-0 rounded-full bg-[var(--accent)]"
-              />
-            </span>
-          </Link>
+    <header className="fixed inset-x-0 top-0 z-[100] px-4 pt-4 sm:px-6 sm:pt-5">
+      <nav aria-label="Main navigation" className={`relative z-[102] mx-auto flex h-[68px] max-w-[1220px] items-center justify-between rounded-2xl border px-3 transition-all duration-300 sm:px-6 ${scrolled ? "border-[var(--border-color)] bg-[var(--surface)]/95 shadow-[0_12px_36px_rgba(18,30,22,.12)] backdrop-blur-xl" : "border-[var(--border-color)]/80 bg-[var(--surface)]/80 backdrop-blur-lg"}`}>
+        <Link href="#home" onClick={closeMenu} aria-label="Ali Eman, home" className="group flex items-center">
+          <span className="font-display text-[20px] font-semibold tracking-[-.04em] text-[var(--foreground)] sm:text-2xl">Ali Eman<span className="text-[var(--accent)]">.</span></span>
+        </Link>
 
-          {/* Desktop links */}
-          <div className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 lg:block">
-            <ul className="flex items-center gap-1 rounded-none border border-[var(--border-color)] bg-[var(--input-bg)]/80 p-1">
-              {NAV_LINKS.map((link) => {
-                const active = activeSection === link.id;
-                return (
-                  <li key={link.id}>
-                    <Link
-                      href={link.href}
-                      className={cn(
-                        "relative block px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] transition xl:px-4",
-                        active
-                          ? "text-black"
-                          : "text-[var(--gray-muted)] hover:text-[var(--foreground)]"
-                      )}
-                    >
-                      {active && (
-                        <motion.span
-                          layoutId="nav-active"
-                          className="absolute inset-0 -z-10 bg-[var(--accent)]"
-                          transition={{ type: "spring", stiffness: 420, damping: 34 }}
-                        />
-                      )}
-                      {link.name}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-
-          {/* Actions */}
-          <div className="relative z-[60] flex items-center gap-2">
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="flex h-9 w-9 items-center justify-center border border-[var(--border-color)] text-[var(--gray-light)] transition hover:border-[var(--accent)]/50 hover:text-[var(--accent)]"
-              aria-label="Toggle theme"
-            >
-              {mounted && theme === "light" ? <Moon size={15} /> : <Sun size={15} />}
-            </button>
-
-            <Link
-              href="#contact"
-              className={cn(
-                "hidden items-center gap-1.5 px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.12em] transition sm:inline-flex",
-                activeSection === "contact"
-                  ? "border border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]"
-                  : "bg-[var(--accent)] text-black hover:brightness-110"
-              )}
-            >
-              Contact
-              <ArrowUpRight size={13} strokeWidth={2.5} />
+        <div className="hidden items-center gap-1 lg:flex">
+          {links.map((link) => (
+            <Link key={link.id} href={`#${link.id}`} aria-current={active === link.id ? "page" : undefined} className={`relative rounded-xl px-3.5 py-2.5 text-[13px] font-medium transition-colors xl:px-4 ${active === link.id ? "text-[var(--accent)]" : "text-[var(--gray-light)] hover:text-[var(--foreground)]"}`}>
+              {link.label}
+              {active === link.id && <motion.span layoutId="nav-underline" className="absolute inset-x-3 bottom-1 h-[2px] rounded-full bg-[var(--accent)]" transition={{ type: "spring", stiffness: 420, damping: 34 }} />}
             </Link>
+          ))}
+        </div>
 
-            <button
-              type="button"
-              onClick={() => setIsMobileMenuOpen((v) => !v)}
-              className="flex h-9 w-9 items-center justify-center border border-[var(--border-color)] text-[var(--foreground)] transition hover:border-[var(--accent)]/50 hover:text-[var(--accent)] lg:hidden"
-              aria-label="Menu"
-              aria-expanded={isMobileMenuOpen}
-            >
-              {isMobileMenuOpen ? <X size={17} /> : <Menu size={17} />}
-            </button>
-          </div>
-        </nav>
-      </div>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <button type="button" onClick={toggleTheme} aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`} className="flex h-10 w-10 items-center justify-center rounded-xl text-[var(--gray-light)] transition hover:bg-[var(--input-bg)] hover:text-[var(--accent)]">
+            {theme === "light" ? <Moon size={17} /> : <Sun size={17} />}
+          </button>
+          <Link href="#contact" className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-[var(--accent)] px-2.5 text-[11px] font-semibold text-[var(--accent-ink)] transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[var(--accent)]/20 sm:h-11 sm:gap-2 sm:px-4 sm:text-[13px]">Let&apos;s talk <ArrowUpRight size={14}/></Link>
+          <button type="button" onClick={() => setMenuOpen((open) => !open)} aria-label={menuOpen ? "Close menu" : "Open menu"} aria-expanded={menuOpen} className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border-color)] text-[var(--foreground)] lg:hidden">{menuOpen ? <X size={18}/> : <Menu size={18}/>}</button>
+        </div>
+      </nav>
 
-      {/* Mobile menu */}
       <AnimatePresence>
-        {isMobileMenuOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="fixed inset-0 z-[40] bg-black/65 backdrop-blur-sm lg:hidden"
-            />
-            <motion.div
-              initial={{ opacity: 0, y: -12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.22 }}
-              className="absolute inset-x-3 top-[72px] z-[50] border border-[var(--border-color)] bg-[var(--background)]/98 p-3 shadow-[0_24px_60px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:inset-x-4 lg:hidden"
-            >
-              <div className="flex flex-col gap-1">
-                {[...NAV_LINKS, { id: "contact", name: "Contact", href: "#contact" }].map(
-                  (link, i) => {
-                    const active = activeSection === link.id;
-                    return (
-                      <motion.div
-                        key={link.id}
-                        initial={{ opacity: 0, x: -8 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: i * 0.04 }}
-                      >
-                        <Link
-                          href={link.href}
-                          onClick={() => setIsMobileMenuOpen(false)}
-                          className={cn(
-                            "flex items-center justify-between px-3.5 py-3.5 text-[12px] font-semibold uppercase tracking-[0.14em] transition",
-                            active
-                              ? "bg-[var(--accent)] text-black"
-                              : "text-[var(--gray-light)] hover:bg-[var(--input-bg)] hover:text-[var(--foreground)]"
-                          )}
-                        >
-                          {link.name}
-                          <span
-                            className={cn(
-                              "h-1.5 w-1.5 rounded-full",
-                              active ? "bg-black" : "bg-[var(--border-color)]"
-                            )}
-                          />
-                        </Link>
-                      </motion.div>
-                    );
-                  }
-                )}
-              </div>
-            </motion.div>
-          </>
-        )}
+        {menuOpen && <>
+          <motion.button type="button" aria-label="Close navigation menu" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={closeMenu} className="fixed inset-0 z-[90] bg-black/35 backdrop-blur-[2px] lg:hidden" />
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: .18 }} className="relative z-[101] mx-auto mt-2 max-w-[1220px] rounded-2xl border border-[var(--border-color)] bg-[var(--surface)] p-2 shadow-2xl lg:hidden">
+            {[{ id: "home", label: "Home" }, ...links, { id: "contact", label: "Contact" }].map((link) => <Link key={link.id} href={`#${link.id}`} onClick={closeMenu} aria-current={active === link.id ? "page" : undefined} className={`flex items-center justify-between rounded-xl px-4 py-3.5 text-sm font-medium transition ${active === link.id ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "text-[var(--gray-light)] hover:bg-[var(--input-bg)]"}`}>{link.label}<ArrowUpRight size={15}/></Link>)}
+          </motion.div>
+        </>}
       </AnimatePresence>
     </header>
   );
-};
-
-export default Navbar;
+}

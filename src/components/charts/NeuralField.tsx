@@ -74,7 +74,7 @@ export default function NeuralField({ density = "normal", className = "" }: Prop
             context.beginPath();
             context.moveTo(a.x, a.y);
             context.lineTo(b.x, b.y);
-            context.strokeStyle = `rgba(255,140,0,${opacity})`;
+            context.strokeStyle = `rgba(185,229,139,${opacity})`;
             context.lineWidth = 0.7;
             context.stroke();
             connections.push({ a, b, phase: (i * 13 + j * 7) % 1900 });
@@ -88,14 +88,14 @@ export default function NeuralField({ density = "normal", className = "" }: Prop
         const y = a.y + (b.y - a.y) * progress;
         context.beginPath();
         context.arc(x, y, 1.4, 0, Math.PI * 2);
-        context.fillStyle = "rgba(255,179,71,0.85)";
+        context.fillStyle = "rgba(128,173,117,0.85)";
         context.fill();
       });
 
       points.forEach((p) => {
         context.beginPath();
         context.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        context.fillStyle = "rgba(255,140,0,0.72)";
+        context.fillStyle = "rgba(185,229,139,0.72)";
         context.fill();
       });
 

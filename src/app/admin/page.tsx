@@ -36,7 +36,7 @@ const labelClass =
 const panelClass =
   "border border-[var(--border-color)] bg-[var(--card-bg)] p-5 md:p-6";
 const btnPrimary =
-  "inline-flex items-center justify-center gap-2 bg-[var(--accent)] px-5 py-2.5 text-xs font-bold uppercase tracking-[0.14em] text-black transition hover:brightness-110 disabled:opacity-50";
+  "inline-flex items-center justify-center gap-2 bg-[var(--accent)] px-5 py-2.5 text-xs font-bold uppercase tracking-[0.14em] text-[var(--accent-ink)] transition hover:brightness-110 disabled:opacity-50";
 const btnGhost =
   "inline-flex items-center justify-center gap-2 border border-[var(--border-color)] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--foreground)] transition hover:border-[var(--accent)]";
 
@@ -631,7 +631,7 @@ export default function AdminPanel() {
               onClick={() => setActiveTab(tab.id)}
               className={`px-3.5 py-2 text-[11px] font-bold uppercase tracking-[0.14em] transition ${
                 activeTab === tab.id
-                  ? "bg-[var(--accent)] text-black"
+                  ? "bg-[var(--accent)] text-[var(--accent-ink)]"
                   : "border border-[var(--border-color)] text-[var(--gray-light)] hover:border-[var(--accent)]/40 hover:text-[var(--foreground)]"
               }`}
             >
@@ -772,7 +772,7 @@ export default function AdminPanel() {
                     </div>
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="inline-flex h-7 min-w-[2rem] items-center justify-center bg-[var(--accent)] px-2 text-[11px] font-bold text-black">
+                        <span className="inline-flex h-7 min-w-[2rem] items-center justify-center bg-[var(--accent)] px-2 text-[11px] font-bold text-[var(--accent-ink)]">
                           #{service.order_index}
                         </span>
                         <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--gray-muted)]">
@@ -872,7 +872,7 @@ export default function AdminPanel() {
                     </div>
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="inline-flex h-7 min-w-[2rem] items-center justify-center bg-[var(--accent)] px-2 text-[11px] font-bold text-black">
+                        <span className="inline-flex h-7 min-w-[2rem] items-center justify-center bg-[var(--accent)] px-2 text-[11px] font-bold text-[var(--accent-ink)]">
                           #{project.order_index}
                         </span>
                         <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--gray-muted)]">
