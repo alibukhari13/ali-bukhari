@@ -8,8 +8,7 @@ import { AnimatePresence, motion } from "framer-motion";
 const links = [
   { id: "about", label: "About" },
   { id: "experience", label: "Experience" },
-  { id: "services", label: "Services" },
-  { id: "projects", label: "Projects" },
+  { id: "projects", label: "Work" },
 ];
 
 export default function Navbar() {
@@ -22,7 +21,7 @@ export default function Navbar() {
     const root = document.documentElement;
     const saved = window.localStorage.getItem("theme");
     const initial = saved === "light" || saved === "dark" ? saved : root.classList.contains("dark") ? "dark" : "light";
-    setTheme(initial);
+    const themeFrame = window.requestAnimationFrame(() => setTheme(initial));
     root.classList.toggle("dark", initial === "dark");
     root.classList.toggle("light", initial === "light");
 
@@ -37,7 +36,11 @@ export default function Navbar() {
     const onScroll = () => setScrolled(window.scrollY > 20);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => { observer.disconnect(); window.removeEventListener("scroll", onScroll); };
+    return () => {
+      window.cancelAnimationFrame(themeFrame);
+      observer.disconnect();
+      window.removeEventListener("scroll", onScroll);
+    };
   }, []);
 
   useEffect(() => {

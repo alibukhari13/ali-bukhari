@@ -7,7 +7,6 @@ import { ArrowUpRight, Mail, Send, MapPin, Phone, Clock } from "lucide-react";
 import { FaLinkedinIn } from "react-icons/fa6";
 import { supabase } from "@/lib/supabase";
 import { easeOut } from "@/lib/motion";
-import Reveal from "@/components/ui/Reveal";
 
 const FALLBACK_CONTACT = {
   email: "syedalibukharishah16@gmail.com",
@@ -61,11 +60,6 @@ const Contact = () => {
   return (
     <section id="contact" className="section-shell isolate">
       <div className="relative z-10 mx-auto max-w-[1240px]">
-        <Reveal className="mb-10 grid gap-5 md:mb-14 md:grid-cols-[.9fr_1.1fr] md:items-end">
-          <div><p className="mb-3 text-xs font-semibold uppercase tracking-[.18em] text-[var(--accent)]">Have something in mind?</p><h2 className="font-display text-4xl font-bold leading-[1] tracking-[-.055em] text-[var(--foreground)] sm:text-5xl">Let&apos;s make it<br/>work beautifully<span className="text-[var(--accent)]">.</span></h2></div>
-          <p className="max-w-lg text-base leading-relaxed text-[var(--gray-light)]">Tell me a little about the project, team or role. I&apos;m always happy to talk through a good idea.</p>
-        </Reveal>
-
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[0.92fr_1.08fr] lg:gap-8">
           <motion.div
             initial={{ opacity: 0, x: -14 }}
@@ -77,9 +71,10 @@ const Contact = () => {
             <div className="contact-invite-orbit pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full border border-white/[.08]" />
             <div className="pointer-events-none absolute -right-6 -top-6 h-56 w-56 rounded-full border border-white/[.07]" />
             <div className="relative z-10 flex min-h-full flex-col">
+              <p className="mb-6 text-[10px] font-semibold uppercase tracking-[.2em] text-white/55">Have something in mind?</p>
               <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/[.06] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[.14em] text-white/75"><span className="h-1.5 w-1.5 rounded-full bg-[#a8dba0]"/> Open to the right opportunity</div>
               <h3 className="mt-7 max-w-[460px] font-display text-[clamp(2rem,3.2vw,3.15rem)] font-semibold leading-[.98] tracking-[-.06em] text-white">Let&apos;s build something<br/><span className="text-[#b5d9a8]">worth shipping.</span></h3>
-              <p className="mt-4 max-w-md text-sm leading-[1.75] text-white/65">Based in Lahore and open to thoughtful collaborations, product roles, and Shopify work. Have a challenge in mind? Let&apos;s talk it through.</p>
+              <p className="mt-4 max-w-md text-sm leading-[1.75] text-white/65">Tell me a little about the project, team or role. Based in Lahore and open to thoughtful collaborations, product roles, and Shopify work.</p>
 
               <a href={`mailto:${contactData.email}`} className="group mt-7 flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[.06] p-3.5 transition hover:border-[#b5d9a8]/50 hover:bg-white/[.09] sm:p-4">
                 <span className="flex min-w-0 items-center gap-3"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#b5d9a8] text-[#18281d]"><Mail size={17}/></span><span className="min-w-0"><span className="block text-[9px] font-semibold uppercase tracking-[.14em] text-white/45">Start with an email</span><span className="mt-1 block break-all text-xs font-medium text-white sm:text-sm">{contactData.email}</span></span></span>

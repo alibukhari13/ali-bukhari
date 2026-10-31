@@ -26,7 +26,6 @@ export default function Hero() {
 
   return (
     <section id="home" className="hero-editorial relative isolate flex min-h-[min(900px,100svh)] w-full items-center overflow-hidden px-5 pb-14 pt-28 sm:px-8 sm:pt-32 lg:px-10 lg:pb-16 lg:pt-28">
-      <div aria-hidden="true" className="absolute inset-x-0 top-0 -z-10 h-px bg-gradient-to-r from-transparent via-[var(--accent)]/35 to-transparent" />
       <motion.div
         aria-hidden="true"
         animate={{ x: [0, -8, 0], y: [0, 9, 0] }}

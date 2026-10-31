@@ -319,7 +319,6 @@ body { background: var(--background); }
 }
 .section-shell { padding-block: clamp(4.5rem, 8vw, 7.25rem); }
 .about-editorial, .experience-editorial, .projects-editorial { background: transparent; }
-.section-shell + .section-shell { border-top: 1px solid color-mix(in srgb, var(--border-color) 62%, transparent); }
 .panel, .service-card, .experience-card, .project-card { box-shadow: 0 8px 28px rgba(17, 31, 21, .045); }
 .panel:hover, .service-card:hover, .experience-card:hover, .project-card:hover {
   box-shadow: 0 16px 38px rgba(17, 31, 21, .09);
@@ -340,3 +339,23 @@ input, textarea { border-radius: 10px !important; }
 
 
 .network-visual line { stroke: #9bc895; }
+
+
+/* Clear, editorial presentation for the client portfolio. */
+:root { color-scheme: dark; --background: #0d1411; --foreground: #f1f5f1; --accent: #9dcba6; --accent-hover: #b6dabb; --accent-ink: #000000; --accent-soft: rgba(157,203,166,.13); --border-color: rgba(225,238,228,.12); --card-bg: rgba(255,255,255,.04); --card-border: rgba(225,238,228,.09); --input-bg: rgba(255,255,255,.05); --gray-muted: #9ba99f; --gray-light: #c7d1ca; --surface: #141e18; }
+.light { color-scheme: light; --background: #f5f4ee; --foreground: #1b241c; --accent: #39764a; --accent-hover: #2d633c; --accent-ink: #ffffff; --accent-soft: rgba(57,118,74,.10); --border-color: rgba(27,36,28,.11); --card-bg: rgba(255,255,255,.74); --card-border: rgba(27,36,28,.09); --input-bg: rgba(27,36,28,.035); --gray-muted: #697568; --gray-light: #465047; --surface: #fffefa; }
+.dark { color-scheme: dark; --background: #0d1411; --foreground: #f1f5f1; --accent: #9dcba6; --accent-hover: #b6dabb; --accent-ink: #000000; --accent-soft: rgba(157,203,166,.13); --border-color: rgba(225,238,228,.12); --card-bg: rgba(255,255,255,.04); --card-border: rgba(225,238,228,.09); --input-bg: rgba(255,255,255,.05); --gray-muted: #9ba99f; --gray-light: #c7d1ca; --surface: #141e18; }
+body { letter-spacing: -.012em; }
+.page-atmosphere { background: radial-gradient(ellipse 68% 45% at 50% 0%, color-mix(in srgb,var(--accent) 11%,transparent),transparent 72%), var(--background); }
+.light .page-atmosphere { background: radial-gradient(ellipse 68% 45% at 50% 0%,rgba(57,118,74,.1),transparent 72%),var(--background); }
+.section-shell { padding-block: clamp(4rem,7vw,5.5rem); }
+#home { min-height: min(860px,100svh); }
+#home h1 { font-size: clamp(4rem, 10vw, 8.5rem) !important; line-height: .86 !important; letter-spacing: -.075em !important; }
+#home .hero-title-accent { color: var(--accent) !important; }
+nav { box-shadow: 0 10px 38px rgba(20,35,25,.055); }
+.experience-card, .service-card, .project-card { border-radius: 1rem !important; }
+.project-card { box-shadow: 0 5px 24px rgba(20,35,25,.035); }
+.project-card:hover { box-shadow: 0 22px 54px rgba(20,35,25,.09); }
+.contact-invite { background: #18281d !important; border-color: rgba(57,118,74,.45) !important; }
+@media (min-width: 768px) { .section-shell { padding-inline: 2.25rem; } }
+@media (max-width: 640px) { #home { min-height: auto; } #home h1 { font-size: clamp(3.6rem, 15vw, 5rem) !important; } }
